@@ -1,0 +1,704 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[ VulnWebs ] - testhtml5.vulnweb.com - A1mH1gh</title>
+<meta name="description" content="RECON  WAS: Nginx/1.19.0   XSS  로그인 페이지에서 http://testhtml5.vulnweb.com/#/popular  스크립트 구문으로 로그인 하면 &lt;script&gt;alert(document.domain)&lt;/script&gt;    스크립트 실행됨   Cleartext Transmission 로그인 페이지에서 http://testhtml5.vulnweb.com/#/popular  평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음)   Insufficient Session Expiration ‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음 로그인 직후 모습    1시간 경과 모습   Position Leakage 자동점검 툴을 통해 아래 디렉토리를 발견, 사용자에게 불필요한 정보 공개가 되고있음 http://testhtml5.vulnweb.com/samples/       Done.">
+
+
+  <meta name="author" content="A1mH1gh">
+  
+  <meta property="article:author" content="A1mH1gh">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="A1mH1gh">
+<meta property="og:title" content="[ VulnWebs ] - testhtml5.vulnweb.com">
+<meta property="og:url" content="http://localhost:4000/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/">
+
+
+  <meta property="og:description" content="RECON  WAS: Nginx/1.19.0   XSS  로그인 페이지에서 http://testhtml5.vulnweb.com/#/popular  스크립트 구문으로 로그인 하면 &lt;script&gt;alert(document.domain)&lt;/script&gt;    스크립트 실행됨   Cleartext Transmission 로그인 페이지에서 http://testhtml5.vulnweb.com/#/popular  평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음)   Insufficient Session Expiration ‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음 로그인 직후 모습    1시간 경과 모습   Position Leakage 자동점검 툴을 통해 아래 디렉토리를 발견, 사용자에게 불필요한 정보 공개가 되고있음 http://testhtml5.vulnweb.com/samples/       Done.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2022-12-03T00:00:00+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "A1mH1gh",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="A1mH1gh Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          A1mH1gh
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/HTB_Writeup/">HTB Writeup</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/VulnWebs_Writeup/">VulnWebs Writeup</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person" class="h-card">
+
+  
+    <div class="author__avatar">
+      <a href="http://localhost:4000/">
+        <img src="/assets/img/bow.png" alt="A1mH1gh" itemprop="image" class="u-photo">
+      </a>
+    </div>
+  
+
+  <div class="author__content">
+    <h3 class="author__name p-name" itemprop="name">
+      <a class="u-url" rel="me" href="http://localhost:4000/" itemprop="url">A1mH1gh</a>
+    </h3>
+    
+      <div class="author__bio p-note" itemprop="description">
+        <p>Pentesting Log</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name" class="p-locality">Republic of Korea</span>
+        </li>
+      
+
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+
+      
+
+      
+        <li>
+          <a href="mailto:A1mH1gh4909@gmail.com" rel="me" class="u-email">
+            <meta itemprop="email" content="A1mH1gh4909@gmail.com" />
+            <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span>
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer me">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page h-entry" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="[ VulnWebs ] - testhtml5.vulnweb.com">
+    <meta itemprop="description" content="RECONWAS: Nginx/1.19.0XSS로그인 페이지에서http://testhtml5.vulnweb.com/#/popular스크립트 구문으로 로그인 하면&lt;script&gt;alert(document.domain)&lt;/script&gt;스크립트 실행됨Cleartext Transmission로그인 페이지에서http://testhtml5.vulnweb.com/#/popular평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음)Insufficient Session Expiration‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음로그인 직후 모습 1시간 경과 모습Position Leakage자동점검 툴을 통해 아래 디렉토리를 발견, 사용자에게 불필요한 정보 공개가 되고있음http://testhtml5.vulnweb.com/samples/Done.">
+    <meta itemprop="datePublished" content="2022-12-03T00:00:00+09:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title p-name" itemprop="headline">
+            <a href="http://localhost:4000/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/" class="u-url" itemprop="url">[ VulnWebs ] - testhtml5.vulnweb.com
+</a>
+          </h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content e-content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu"><li><a href="#recon">RECON</a></li><li><a href="#xss">XSS</a></li><li><a href="#cleartext-transmission">Cleartext Transmission</a></li><li><a href="#insufficient-session-expiration">Insufficient Session Expiration</a></li><li><a href="#position-leakage">Position Leakage</a></li></ul>
+
+            </nav>
+          </aside>
+        
+        <p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205484966-fd6a0956-8c72-4b70-b016-03cd935a9b20.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207834708-d3a6ff8c-97c3-4e7a-86e3-a50de585e66d.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<p><img src="https://user-images.githubusercontent.com/56434196/205794576-e058c95c-f44a-4781-a947-8b01067ea358.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WAS: Nginx/1.19.0
+</code></pre></div></div>
+
+<h2 id="xss">XSS</h2>
+
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testhtml5.vulnweb.com/#/popular
+</code></pre></div></div>
+<p>스크립트 구문으로 로그인 하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205485923-ad764ecc-24fc-4f9f-a7e4-7736cab17cbc.png" alt="image" /></p>
+
+<p>스크립트 실행됨
+<img src="https://user-images.githubusercontent.com/100695923/205485943-c9e64564-ff53-41aa-a157-d997f80ef044.png" alt="image" /></p>
+
+<h2 id="cleartext-transmission">Cleartext Transmission</h2>
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testhtml5.vulnweb.com/#/popular
+</code></pre></div></div>
+<p>평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음<br />(인코딩 및 암호화되지 않음)
+<img src="https://user-images.githubusercontent.com/56434196/205794005-b3e37a87-96d9-40e9-a4ff-046a2a794792.png" alt="image" /></p>
+
+<h2 id="insufficient-session-expiration">Insufficient Session Expiration</h2>
+<p>‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음
+<br />로그인 직후 모습 
+<img src="https://user-images.githubusercontent.com/56434196/207785230-1174191e-f93b-48c4-9ab0-cde4136a0dd8.png" alt="image" /></p>
+
+<p>1시간 경과 모습
+<img src="https://user-images.githubusercontent.com/56434196/207785243-6a329280-4e22-4f3a-83da-92a5f6d0cb5c.png" alt="image" /></p>
+
+<h2 id="position-leakage">Position Leakage</h2>
+<p>자동점검 툴을 통해 아래 디렉토리를 발견, 사용자에게 불필요한 정보 공개가 되고있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testhtml5.vulnweb.com/samples/
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207750969-2eaf9034-d9ee-4765-930a-67a744384c65.png" alt="image" /></p>
+
+<p><br />
+<br />
+<br />
+Done.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/categories/#vulnwebs-writeup" class="page__taxonomy-item p-category" rel="tag">VulnWebs_Writeup</a>
+    
+    </span>
+  </p>
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2022-12-03T00:00:00+09:00">December 3, 2022</time></p>
+
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?text=%5B+VulnWebs+%5D+-+testhtml5.vulnweb.com%20http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-testhtml5.vulnweb.com%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-testhtml5.vulnweb.com%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-testhtml5.vulnweb.com%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/vulnwebs_writeup/VulnWebs-testaspnet.vulnweb.com/" class="pagination--pager" title="[ VulnWebs ] - testaspnet.vulnweb.com
+">Previous</a>
+    
+    
+      <a href="/vulnwebs_writeup/VulnWebs-x.x.137.97/" class="pagination--pager" title="[ VulnWebs ] - x.x.137.97
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h2 class="page__related-title">You may also enjoy</h2>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-x.x.137.97/" rel="permalink">[ VulnWebs ] - x.x.137.97
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">RECON
+
+OS: CentOS
+WAS: Apache/2.4.6
+Lang: PHP/7.2.34
+
+File Upload
+업로드 페이지가 존재하며
+http://x.x.137.97/upload.php
+
+
+
+확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도
+import reque...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testaspnet.vulnweb.com/" rel="permalink">[ VulnWebs ] - testaspnet.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+OS: Windows Server
+WAS: IIS/8.5
+Lang: ASP.NET
+
+
+
+
+Information Leakage
+서버 내 미존재 페이지에 접속할 경우 에러페이지가 반환되며 서버 정보관련 정보를 노출하고 있음
+http://testaspnet.vulnwe...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testasp.vulnweb.com/" rel="permalink">[ VulnWebs ] - testasp.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+
+
+OS: Windows Server
+WAS: Microsoft-IIS/8.5
+Lang: ASP.NET
+
+Information Leakage
+임의값을 전송하여 서버 에러를 유발시켜 서버 정보를 노출시킴
+http://testasp.vulnweb.com/showfor...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testphp.vulnweb.com/" rel="permalink">[ VulnWebs ] - testphp.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+PHP 5.6.40
+Nginx
+Ubuntu
+
+
+
+Position Leakage
+Position Leakage-1
+Google Dork을 통해 ‘백업 파일’을 검색
+site:testphp.vulnweb.com intext:"bak"
+
+
+
+‘pictures’ 디렉토리...</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 A1mH1gh. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

