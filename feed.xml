@@ -1,4 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-12-25T18:51:30+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">A1mH1gh</title><subtitle>Security Log</subtitle><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><entry><title type="html">[ VulnWebs ] - x.x.137.97</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-x.x.137.97/" rel="alternate" type="text/html" title="[ VulnWebs ] - x.x.137.97" /><published>2022-12-05T00:00:00+09:00</published><updated>2022-12-05T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-x.x.137.97</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-x.x.137.97/"><![CDATA[<h2 id="recon">RECON</h2>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-01-29T15:12:38+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">A1mH1gh</title><subtitle>Security Log</subtitle><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><entry><title type="html">[ HTB ] - Iginition</title><link href="http://localhost:4000/htb_writeup/HTB-Ignition/" rel="alternate" type="text/html" title="[ HTB ] - Iginition" /><published>2023-01-01T00:00:00+09:00</published><updated>2023-01-01T00:00:00+09:00</updated><id>http://localhost:4000/htb_writeup/%5BHTB%5D-Ignition</id><content type="html" xml:base="http://localhost:4000/htb_writeup/HTB-Ignition/"><![CDATA[<p><img src="https://user-images.githubusercontent.com/100695923/210164332-8529f87a-c232-4001-ae31-c4245d7cb43e.png" alt="image" />
+관리자 페이지에 접속가능한 웹사이트는 공격자가 Brute Forcing 공격을 통해 ID/PW를 획득할 수 있다 그렇다면 어떻게 관리자 페이지를 찾을 수 있고 브루투포스 공격을 수행할 수 있을 까?</p>
+
+<p><br />
+<br /></p>
+
+<h1 id="1-service-enumeration">1. Service Enumeration</h1>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nmap -sS -sV 10.129.177.62 -o nmap.txt
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/210164837-6627f997-195a-455e-a1bf-eae145b11051.png" alt="image" /></p>
+
+<h1 id="2-initial-access">2. Initial Access</h1>
+<p>처음 IP로 접속시에는 <code class="language-plaintext highlighter-rouge">302</code> 에러코드와 함께 접속이 되지 않을 것이다, 도메인으로 접속하라는 말이다</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo "10.129.177.62 ignition.htb" &gt;&gt; /etc/hosts
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/210165520-94072c35-b654-42e3-8713-67e39e55db94.png" alt="image" /></p>
+
+<p>웹페이지를 좀 둘러보고 공개되지 않았으나 존재하는 페이지가 있을 것 같으니(ex, 관리자 페이지 등) <code class="language-plaintext highlighter-rouge">gobuster</code> 웹 페이지 퍼징을 해보자</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gobuster dir -w /usr/share/wordlists/dirb/common.txt -u ignition.htb -o gobuster.txt
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/210165924-c741be33-478f-459c-b4d0-242a96f10a37.png" alt="image" />
+관리자 페이지가 존재하며 접속해서 <code class="language-plaintext highlighter-rouge">브루투포스 공격</code> 
+먼저, burp suite에서 패킷을 잡아 intruder로 전달
+<img src="https://user-images.githubusercontent.com/100695923/210166221-5772de0f-d272-4bff-9af9-e91159b590d0.png" alt="image" /></p>
+
+<p>이후, 패스워드 사전을 준비
+https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10k-most-common.txt</p>
+
+<p>공격결과 아래 반응이 의심스러움
+<img src="https://user-images.githubusercontent.com/100695923/210166247-2a7a7c50-7cd0-47bc-8106-f15d0b2cb099.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ID: admin
+PW: qwerty123
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/210166269-11015d09-007d-4de2-9c47-ab636bdc37e0.png" alt="image" /></p>
+
+<p>로그인 성공!
+<img src="https://user-images.githubusercontent.com/100695923/210166293-1a0ea074-c95e-45ba-bbec-538385b2e6b8.png" alt="image" /></p>
+
+<p><br />
+<br />
+Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="HTB_Writeup" /><summary type="html"><![CDATA[관리자 페이지에 접속가능한 웹사이트는 공격자가 Brute Forcing 공격을 통해 ID/PW를 획득할 수 있다 그렇다면 어떻게 관리자 페이지를 찾을 수 있고 브루투포스 공격을 수행할 수 있을 까? 1. Service Enumeration nmap -sS -sV 10.129.177.62 -o nmap.txt 2. Initial Access 처음 IP로 접속시에는 302 에러코드와 함께 접속이 되지 않을 것이다, 도메인으로 접속하라는 말이다 echo "10.129.177.62 ignition.htb" &gt;&gt; /etc/hosts 웹페이지를 좀 둘러보고 공개되지 않았으나 존재하는 페이지가 있을 것 같으니(ex, 관리자 페이지 등) gobuster 웹 페이지 퍼징을 해보자 gobuster dir -w /usr/share/wordlists/dirb/common.txt -u ignition.htb -o gobuster.txt 관리자 페이지가 존재하며 접속해서 브루투포스 공격 먼저, burp suite에서 패킷을 잡아 intruder로 전달 이후, 패스워드 사전을 준비 https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10k-most-common.txt 공격결과 아래 반응이 의심스러움 ID: admin PW: qwerty123 로그인 성공! Done.]]></summary></entry><entry><title type="html">[ VulnWebs ] - x.x.137.97</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-x.x.137.97/" rel="alternate" type="text/html" title="[ VulnWebs ] - x.x.137.97" /><published>2022-12-05T00:00:00+09:00</published><updated>2022-12-05T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-x.x.137.97</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-x.x.137.97/"><![CDATA[<h2 id="recon">RECON</h2>
 <p><img src="https://user-images.githubusercontent.com/100695923/205664962-b0c2e15b-1331-465f-87ba-42e5eb7e76d5.png" alt="image" /></p>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>OS: CentOS
 WAS: Apache/2.4.6
@@ -1083,23 +1124,4 @@ admin/home.jsp
 <br />
 <br />
 <br />
-Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[RECON WAS: Apache Information Leakage 비정상 데이터 전송을 통해 웹서버 내 오류를 발생시켜 웹서버 WAS 종류 및 버전 정보를 노출시킴 https://demo.testfire.net/index.jsp?content=../../ WAS: Apache Tomcat/7.0.92 XSS URL 요청 시 스크립트 구문을 삽입하여 브라우저에서 스크립트가 실행 XSS-1 사용자 입력을 그대로 반환하는 페이지가 존재 https://demo.testfire.net/search.jsp?query="&gt;1234 ?query=&lt;script&gt;alert(document.cookie)&lt;/script&gt; XSS-2 비공개 설문조사 페이지는 ‘오픈소스’ 사이트에서 확인할수있었음 &lt;script&gt;alert`1`&lt;/script&gt; XSS-3 https://demo.testfire.net/bank/queryxpath.jsp?content=queryxpath.jsp&amp;query= &amp;query=&lt;script&gt;alert(1)&lt;/script&gt; XSS-4 https://demo.testfire.net/bank/customize.jsp?content=customize.jsp&amp;lang= &amp;lang=&lt;script&gt;alert(1)&lt;/script&gt; XSS-5 https://demo.testfire.net/feedback.jsp Path Traversal 사용자로부터 특정 페이지를 입력받아 Include 해주는 기능이 존재함 (LFI) https://demo.testfire.net/index.jsp?content=inside_contact.htm 공격자는 상위 디렉토리 이동을 의미하는 ../를 사용하여 서버 내 주요 설정 파일들을 열람할 수 있음 ../WEB-INF/init.log ../WEB-INF/web.xml ../WEB-INF/app.properties (위 계정으로 로그인은 되지 않음) SQLi 로그인 페이지에서 https://demo.testfire.net/login.jsp 아래 값을 전달하면 ' or '1'='1 admin으로 로그인 성공 CSRF 아래 URL 클릭만으로 ‘특정 계좌로 송금’이 가능함 https://demo.testfire.net/bank/doTransfer?fromAccount=800000&amp;toAccount=800001&amp;transferAmount=999&amp;transfer=Transfer%20Money Admin Page Discloser 관리자 페이지를 찾기 위해 일반적인 관리자 페이지명(admin.html, manager.html, …)을 대입해보는 사전대입공격 수행 import requests url = 'http://demo.testfire.net/' urls = ''' login.jsp admin/account.html admin/login.html admin/login.htm admin/home.jsp ''' #words 모음 사이트 #https://github.com/fuzzdb-project/fuzzdb/blob/master/discovery/predictable-filepaths/login-file-locations/jsp.txt cookies = { 'JSESSIONID': 'BFE82CD7D10AFB01E956532AA7205B0F', 'AltoroAccounts' : 'ODAwMDAyflNhdmluZ3N+LTEuOTk5NTQzNDA3MDM5MTUyOUUxOHw4MDAwMDN+Q2hlY2tpbmd+MS4xODQ0Njc0NDA4Mzc2NTkyRTIwfDQ1MzkwODIwMzkzOTYyODh+Q3JlZGl0IENhcmR+LTEuOTk5NTQzNDAxMjc4NzExNTVFMTh8' } #일반 사용자 (쿠키)세션 전달 필요 arry = urls.split() for i in arry: r=requests.get(url+'/'+i,cookies=cookies) if r.status_code == 200: print('관리자 페이지: '+url+'/'+i) 스크립트 결과 다음 URL을 확인할 수 있었음 http://demo.testfire.net/admin/admin.jsp Done.]]></summary></entry><entry><title type="html">[ VulnWebs ] - Getting Started</title><link href="http://localhost:4000/vulnwebs_writeup/VulnWebs-GettingStarted/" rel="alternate" type="text/html" title="[ VulnWebs ] - Getting Started" /><published>2022-11-26T00:00:00+09:00</published><updated>2022-11-26T00:00:00+09:00</updated><id>http://localhost:4000/vulnwebs_writeup/%5BVulnWebs%5D-GettingStarted</id><content type="html" xml:base="http://localhost:4000/vulnwebs_writeup/VulnWebs-GettingStarted/"><![CDATA[<p>웹취약점 진단 능력 고도화를 위해 <strong>Vulnerable WebSites</strong> 에서 취약점을 찾아보자!</p>
-<h2 id="what">What?</h2>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. demo.testfire.net
-2. zero.webappsecurity.com
-3. php.testsparker.com
-4. aspnet.testsparker.com
-5. testphp.vulnweb.com
-6. testasp.vulnweb.com
-7. testaspnet.vulnweb.com
-8. testhtml5.vulnweb.com
-9. x.x.137.97
-</code></pre></div></div>
-<h2 id="how">How?</h2>
-<p>Checklist : ‘주요정보통신기반시설 취약점 점검 가이드’<br />
-Tools : ‘Chrome DevTools’, ‘Python’<br />
-Deadline : ‘2022/12/23’
-<br />
-<br />
-<br />
-Ok. Let’s do this :)</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[웹취약점 진단 능력 고도화를 위해 Vulnerable WebSites 에서 취약점을 찾아보자! What? 1. demo.testfire.net 2. zero.webappsecurity.com 3. php.testsparker.com 4. aspnet.testsparker.com 5. testphp.vulnweb.com 6. testasp.vulnweb.com 7. testaspnet.vulnweb.com 8. testhtml5.vulnweb.com 9. x.x.137.97 How? Checklist : ‘주요정보통신기반시설 취약점 점검 가이드’ Tools : ‘Chrome DevTools’, ‘Python’ Deadline : ‘2022/12/23’ Ok. Let’s do this :)]]></summary></entry></feed>
+Done.</p>]]></content><author><name>A1mH1gh</name><email>A1mH1gh4909@gmail.com</email></author><category term="VulnWebs_Writeup" /><summary type="html"><![CDATA[RECON WAS: Apache Information Leakage 비정상 데이터 전송을 통해 웹서버 내 오류를 발생시켜 웹서버 WAS 종류 및 버전 정보를 노출시킴 https://demo.testfire.net/index.jsp?content=../../ WAS: Apache Tomcat/7.0.92 XSS URL 요청 시 스크립트 구문을 삽입하여 브라우저에서 스크립트가 실행 XSS-1 사용자 입력을 그대로 반환하는 페이지가 존재 https://demo.testfire.net/search.jsp?query="&gt;1234 ?query=&lt;script&gt;alert(document.cookie)&lt;/script&gt; XSS-2 비공개 설문조사 페이지는 ‘오픈소스’ 사이트에서 확인할수있었음 &lt;script&gt;alert`1`&lt;/script&gt; XSS-3 https://demo.testfire.net/bank/queryxpath.jsp?content=queryxpath.jsp&amp;query= &amp;query=&lt;script&gt;alert(1)&lt;/script&gt; XSS-4 https://demo.testfire.net/bank/customize.jsp?content=customize.jsp&amp;lang= &amp;lang=&lt;script&gt;alert(1)&lt;/script&gt; XSS-5 https://demo.testfire.net/feedback.jsp Path Traversal 사용자로부터 특정 페이지를 입력받아 Include 해주는 기능이 존재함 (LFI) https://demo.testfire.net/index.jsp?content=inside_contact.htm 공격자는 상위 디렉토리 이동을 의미하는 ../를 사용하여 서버 내 주요 설정 파일들을 열람할 수 있음 ../WEB-INF/init.log ../WEB-INF/web.xml ../WEB-INF/app.properties (위 계정으로 로그인은 되지 않음) SQLi 로그인 페이지에서 https://demo.testfire.net/login.jsp 아래 값을 전달하면 ' or '1'='1 admin으로 로그인 성공 CSRF 아래 URL 클릭만으로 ‘특정 계좌로 송금’이 가능함 https://demo.testfire.net/bank/doTransfer?fromAccount=800000&amp;toAccount=800001&amp;transferAmount=999&amp;transfer=Transfer%20Money Admin Page Discloser 관리자 페이지를 찾기 위해 일반적인 관리자 페이지명(admin.html, manager.html, …)을 대입해보는 사전대입공격 수행 import requests url = 'http://demo.testfire.net/' urls = ''' login.jsp admin/account.html admin/login.html admin/login.htm admin/home.jsp ''' #words 모음 사이트 #https://github.com/fuzzdb-project/fuzzdb/blob/master/discovery/predictable-filepaths/login-file-locations/jsp.txt cookies = { 'JSESSIONID': 'BFE82CD7D10AFB01E956532AA7205B0F', 'AltoroAccounts' : 'ODAwMDAyflNhdmluZ3N+LTEuOTk5NTQzNDA3MDM5MTUyOUUxOHw4MDAwMDN+Q2hlY2tpbmd+MS4xODQ0Njc0NDA4Mzc2NTkyRTIwfDQ1MzkwODIwMzkzOTYyODh+Q3JlZGl0IENhcmR+LTEuOTk5NTQzNDAxMjc4NzExNTVFMTh8' } #일반 사용자 (쿠키)세션 전달 필요 arry = urls.split() for i in arry: r=requests.get(url+'/'+i,cookies=cookies) if r.status_code == 200: print('관리자 페이지: '+url+'/'+i) 스크립트 결과 다음 URL을 확인할 수 있었음 http://demo.testfire.net/admin/admin.jsp Done.]]></summary></entry></feed>

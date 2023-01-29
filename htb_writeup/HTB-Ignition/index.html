@@ -9,8 +9,8 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>[ VulnWebs ] - x.x.137.97 - A1mH1gh</title>
-<meta name="description" content="RECON  OS: CentOS WAS: Apache/2.4.6 Lang: PHP/7.2.34  File Upload 업로드 페이지가 존재하며 http://x.x.137.97/upload.php    확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도 import requests  url = &#39;http://x.x.137.97/upload.php&#39; files={ &#39;userfile&#39;: (&#39;test.php&#39;, &#39;&lt;?php echo &quot;Hello there!&quot; ?&gt;&#39;) } r = requests.post(url, files=files)  print(r.text)  정상 업로드되었으며 특이점으로는 ‘업로드 경로’를 친절히 반환함   업로드 경로로 ‘URL 접속’할 경우 서버사이드스크립트가 실행 http://x.x.137.97/upload/test.php    두번째 테스트 서버(x.x.137.97:8080)에서도 위와 마찬가지, 다만 jsp환경임을 고려하여 파일명(test.jsp)와 페이로드(아래)을 적용해야함 http://x.x.137.97:8080/upload.jsp  위와 같은 서버스크립트가 실행됨, 아래는 페이로드 &lt;%@ page import=&quot;java.util.*,java.io.*&quot;%&gt; &lt;% 	out.println(&quot;Hello&quot;); %&gt;     Done.">
+<!-- begin _includes/seo.html --><title>[ HTB ] - Iginition - A1mH1gh</title>
+<meta name="description" content="관리자 페이지에 접속가능한 웹사이트는 공격자가 Brute Forcing 공격을 통해 ID/PW를 획득할 수 있다 그렇다면 어떻게 관리자 페이지를 찾을 수 있고 브루투포스 공격을 수행할 수 있을 까?     1. Service Enumeration nmap -sS -sV 10.129.177.62 -o nmap.txt    2. Initial Access 처음 IP로 접속시에는 302 에러코드와 함께 접속이 되지 않을 것이다, 도메인으로 접속하라는 말이다 echo &quot;10.129.177.62 ignition.htb&quot; &gt;&gt; /etc/hosts    웹페이지를 좀 둘러보고 공개되지 않았으나 존재하는 페이지가 있을 것 같으니(ex, 관리자 페이지 등) gobuster 웹 페이지 퍼징을 해보자  gobuster dir -w /usr/share/wordlists/dirb/common.txt -u ignition.htb -o gobuster.txt   관리자 페이지가 존재하며 접속해서 브루투포스 공격  먼저, burp suite에서 패킷을 잡아 intruder로 전달   이후, 패스워드 사전을 준비 https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10k-most-common.txt  공격결과 아래 반응이 의심스러움  ID: admin PW: qwerty123    로그인 성공!     Done.">
 
 
   <meta name="author" content="A1mH1gh">
@@ -22,30 +22,30 @@
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="A1mH1gh">
-<meta property="og:title" content="[ VulnWebs ] - x.x.137.97">
-<meta property="og:url" content="http://localhost:4000/vulnwebs_writeup/VulnWebs-x.x.137.97/">
+<meta property="og:title" content="[ HTB ] - Iginition">
+<meta property="og:url" content="http://localhost:4000/htb_writeup/HTB-Ignition/">
 
 
-  <meta property="og:description" content="RECON  OS: CentOS WAS: Apache/2.4.6 Lang: PHP/7.2.34  File Upload 업로드 페이지가 존재하며 http://x.x.137.97/upload.php    확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도 import requests  url = &#39;http://x.x.137.97/upload.php&#39; files={ &#39;userfile&#39;: (&#39;test.php&#39;, &#39;&lt;?php echo &quot;Hello there!&quot; ?&gt;&#39;) } r = requests.post(url, files=files)  print(r.text)  정상 업로드되었으며 특이점으로는 ‘업로드 경로’를 친절히 반환함   업로드 경로로 ‘URL 접속’할 경우 서버사이드스크립트가 실행 http://x.x.137.97/upload/test.php    두번째 테스트 서버(x.x.137.97:8080)에서도 위와 마찬가지, 다만 jsp환경임을 고려하여 파일명(test.jsp)와 페이로드(아래)을 적용해야함 http://x.x.137.97:8080/upload.jsp  위와 같은 서버스크립트가 실행됨, 아래는 페이로드 &lt;%@ page import=&quot;java.util.*,java.io.*&quot;%&gt; &lt;% 	out.println(&quot;Hello&quot;); %&gt;     Done.">
-
-
-
-
-
-
-
-  <meta property="article:published_time" content="2022-12-05T00:00:00+09:00">
+  <meta property="og:description" content="관리자 페이지에 접속가능한 웹사이트는 공격자가 Brute Forcing 공격을 통해 ID/PW를 획득할 수 있다 그렇다면 어떻게 관리자 페이지를 찾을 수 있고 브루투포스 공격을 수행할 수 있을 까?     1. Service Enumeration nmap -sS -sV 10.129.177.62 -o nmap.txt    2. Initial Access 처음 IP로 접속시에는 302 에러코드와 함께 접속이 되지 않을 것이다, 도메인으로 접속하라는 말이다 echo &quot;10.129.177.62 ignition.htb&quot; &gt;&gt; /etc/hosts    웹페이지를 좀 둘러보고 공개되지 않았으나 존재하는 페이지가 있을 것 같으니(ex, 관리자 페이지 등) gobuster 웹 페이지 퍼징을 해보자  gobuster dir -w /usr/share/wordlists/dirb/common.txt -u ignition.htb -o gobuster.txt   관리자 페이지가 존재하며 접속해서 브루투포스 공격  먼저, burp suite에서 패킷을 잡아 intruder로 전달   이후, 패스워드 사전을 준비 https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10k-most-common.txt  공격결과 아래 반응이 의심스러움  ID: admin PW: qwerty123    로그인 성공!     Done.">
 
 
 
 
 
-  
+
+
+  <meta property="article:published_time" content="2023-01-01T00:00:00+09:00">
+
+
+
+
 
   
 
+  
 
-<link rel="canonical" href="http://localhost:4000/vulnwebs_writeup/VulnWebs-x.x.137.97/">
+
+<link rel="canonical" href="http://localhost:4000/htb_writeup/HTB-Ignition/">
 
 
 
@@ -267,16 +267,16 @@
 
 
   <article class="page h-entry" itemscope itemtype="https://schema.org/CreativeWork">
-    <meta itemprop="headline" content="[ VulnWebs ] - x.x.137.97">
-    <meta itemprop="description" content="RECONOS: CentOSWAS: Apache/2.4.6Lang: PHP/7.2.34File Upload업로드 페이지가 존재하며http://x.x.137.97/upload.php확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도import requestsurl = &#39;http://x.x.137.97/upload.php&#39;files={ &#39;userfile&#39;: (&#39;test.php&#39;, &#39;&lt;?php echo &quot;Hello there!&quot; ?&gt;&#39;) }r = requests.post(url, files=files)print(r.text)정상 업로드되었으며 특이점으로는 ‘업로드 경로’를 친절히 반환함업로드 경로로 ‘URL 접속’할 경우 서버사이드스크립트가 실행http://x.x.137.97/upload/test.php두번째 테스트 서버(x.x.137.97:8080)에서도 위와 마찬가지, 다만 jsp환경임을 고려하여 파일명(test.jsp)와 페이로드(아래)을 적용해야함http://x.x.137.97:8080/upload.jsp위와 같은 서버스크립트가 실행됨, 아래는 페이로드&lt;%@ page import=&quot;java.util.*,java.io.*&quot;%&gt;&lt;%	out.println(&quot;Hello&quot;);%&gt;Done.">
-    <meta itemprop="datePublished" content="2022-12-05T00:00:00+09:00">
+    <meta itemprop="headline" content="[ HTB ] - Iginition">
+    <meta itemprop="description" content="관리자 페이지에 접속가능한 웹사이트는 공격자가 Brute Forcing 공격을 통해 ID/PW를 획득할 수 있다 그렇다면 어떻게 관리자 페이지를 찾을 수 있고 브루투포스 공격을 수행할 수 있을 까?1. Service Enumerationnmap -sS -sV 10.129.177.62 -o nmap.txt2. Initial Access처음 IP로 접속시에는 302 에러코드와 함께 접속이 되지 않을 것이다, 도메인으로 접속하라는 말이다echo &quot;10.129.177.62 ignition.htb&quot; &gt;&gt; /etc/hosts웹페이지를 좀 둘러보고 공개되지 않았으나 존재하는 페이지가 있을 것 같으니(ex, 관리자 페이지 등) gobuster 웹 페이지 퍼징을 해보자gobuster dir -w /usr/share/wordlists/dirb/common.txt -u ignition.htb -o gobuster.txt관리자 페이지가 존재하며 접속해서 브루투포스 공격 먼저, burp suite에서 패킷을 잡아 intruder로 전달이후, 패스워드 사전을 준비https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10k-most-common.txt공격결과 아래 반응이 의심스러움ID: adminPW: qwerty123로그인 성공!Done.">
+    <meta itemprop="datePublished" content="2023-01-01T00:00:00+09:00">
     
 
     <div class="page__inner-wrap">
       
         <header>
           <h1 id="page-title" class="page__title p-name" itemprop="headline">
-            <a href="http://localhost:4000/vulnwebs_writeup/VulnWebs-x.x.137.97/" class="u-url" itemprop="url">[ VulnWebs ] - x.x.137.97
+            <a href="http://localhost:4000/htb_writeup/HTB-Ignition/" class="u-url" itemprop="url">[ HTB ] - Iginition
 </a>
           </h1>
           
@@ -308,51 +308,51 @@
           <aside class="sidebar__right sticky">
             <nav class="toc">
               <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
-              <ul class="toc__menu"><li><a href="#recon">RECON</a></li><li><a href="#file-upload">File Upload</a></li></ul>
+              <ul class="toc__menu"><li><a href="#1-service-enumeration">1. Service Enumeration</a></li><li><a href="#2-initial-access">2. Initial Access</a></li></ul>
 
             </nav>
           </aside>
         
-        <h2 id="recon">RECON</h2>
-<p><img src="https://user-images.githubusercontent.com/100695923/205664962-b0c2e15b-1331-465f-87ba-42e5eb7e76d5.png" alt="image" /></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>OS: CentOS
-WAS: Apache/2.4.6
-Lang: PHP/7.2.34
-</code></pre></div></div>
-<h2 id="file-upload">File Upload</h2>
-<p>업로드 페이지가 존재하며</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://x.x.137.97/upload.php
-</code></pre></div></div>
-<p><img src="https://user-images.githubusercontent.com/100695923/205656810-8e11319f-3e18-48ef-8a83-6ddd5428e341.png" alt="image" /></p>
+        <p><img src="https://user-images.githubusercontent.com/100695923/210164332-8529f87a-c232-4001-ae31-c4245d7cb43e.png" alt="image" />
+관리자 페이지에 접속가능한 웹사이트는 공격자가 Brute Forcing 공격을 통해 ID/PW를 획득할 수 있다 그렇다면 어떻게 관리자 페이지를 찾을 수 있고 브루투포스 공격을 수행할 수 있을 까?</p>
 
-<p>확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도</p>
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
-
-<span class="n">url</span> <span class="o">=</span> <span class="s">'http://x.x.137.97/upload.php'</span>
-<span class="n">files</span><span class="o">=</span><span class="p">{</span> <span class="s">'userfile'</span><span class="p">:</span> <span class="p">(</span><span class="s">'test.php'</span><span class="p">,</span> <span class="s">'&lt;?php echo "Hello there!" ?&gt;'</span><span class="p">)</span> <span class="p">}</span>
-<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">text</span><span class="p">)</span>
-</code></pre></div></div>
-<p>정상 업로드되었으며 특이점으로는 ‘업로드 경로’를 친절히 반환함
-<img src="https://user-images.githubusercontent.com/100695923/205665845-1508f37c-4158-4a28-98c4-f85658178c69.png" alt="image" /></p>
-
-<p>업로드 경로로 ‘URL 접속’할 경우 서버사이드스크립트가 실행</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://x.x.137.97/upload/test.php
-</code></pre></div></div>
-<p><img src="https://user-images.githubusercontent.com/100695923/205656295-a57f0379-b4da-4360-87fd-2f36eb041c26.png" alt="image" /></p>
-
-<p>두번째 테스트 서버(x.x.137.97:8080)에서도 위와 마찬가지, 다만 jsp환경임을 고려하여 파일명(test.jsp)와 페이로드(아래)을 적용해야함</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://x.x.137.97:8080/upload.jsp
-</code></pre></div></div>
-<p>위와 같은 서버스크립트가 실행됨, 아래는 페이로드</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;%@ page import="java.util.*,java.io.*"%&gt;
-&lt;%
-	out.println("Hello");
-%&gt;
-</code></pre></div></div>
 <p><br />
-<br />
+<br /></p>
+
+<h1 id="1-service-enumeration">1. Service Enumeration</h1>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nmap -sS -sV 10.129.177.62 -o nmap.txt
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/210164837-6627f997-195a-455e-a1bf-eae145b11051.png" alt="image" /></p>
+
+<h1 id="2-initial-access">2. Initial Access</h1>
+<p>처음 IP로 접속시에는 <code class="language-plaintext highlighter-rouge">302</code> 에러코드와 함께 접속이 되지 않을 것이다, 도메인으로 접속하라는 말이다</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo "10.129.177.62 ignition.htb" &gt;&gt; /etc/hosts
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/210165520-94072c35-b654-42e3-8713-67e39e55db94.png" alt="image" /></p>
+
+<p>웹페이지를 좀 둘러보고 공개되지 않았으나 존재하는 페이지가 있을 것 같으니(ex, 관리자 페이지 등) <code class="language-plaintext highlighter-rouge">gobuster</code> 웹 페이지 퍼징을 해보자</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gobuster dir -w /usr/share/wordlists/dirb/common.txt -u ignition.htb -o gobuster.txt
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/210165924-c741be33-478f-459c-b4d0-242a96f10a37.png" alt="image" />
+관리자 페이지가 존재하며 접속해서 <code class="language-plaintext highlighter-rouge">브루투포스 공격</code> 
+먼저, burp suite에서 패킷을 잡아 intruder로 전달
+<img src="https://user-images.githubusercontent.com/100695923/210166221-5772de0f-d272-4bff-9af9-e91159b590d0.png" alt="image" /></p>
+
+<p>이후, 패스워드 사전을 준비
+https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10k-most-common.txt</p>
+
+<p>공격결과 아래 반응이 의심스러움
+<img src="https://user-images.githubusercontent.com/100695923/210166247-2a7a7c50-7cd0-47bc-8106-f15d0b2cb099.png" alt="image" /></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ID: admin
+PW: qwerty123
+</code></pre></div></div>
+<p><img src="https://user-images.githubusercontent.com/100695923/210166269-11015d09-007d-4de2-9c47-ab636bdc37e0.png" alt="image" /></p>
+
+<p>로그인 성공!
+<img src="https://user-images.githubusercontent.com/100695923/210166293-1a0ea074-c95e-45ba-bbec-538385b2e6b8.png" alt="image" /></p>
+
+<p><br />
 <br />
 Done.</p>
 
@@ -373,7 +373,7 @@ Done.</p>
     <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
     <span itemprop="keywords">
     
-      <a href="/categories/#vulnwebs-writeup" class="page__taxonomy-item p-category" rel="tag">VulnWebs_Writeup</a>
+      <a href="/categories/#htb-writeup" class="page__taxonomy-item p-category" rel="tag">HTB_Writeup</a>
     
     </span>
   </p>
@@ -381,7 +381,7 @@ Done.</p>
 
         
 
-  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2022-12-05T00:00:00+09:00">December 5, 2022</time></p>
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time class="dt-published" datetime="2023-01-01T00:00:00+09:00">January 1, 2023</time></p>
 
       </footer>
 
@@ -390,23 +390,22 @@ Done.</p>
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?text=%5B+VulnWebs+%5D+-+x.x.137.97%20http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-x.x.137.97%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?text=%5B+HTB+%5D+-+Iginition%20http%3A%2F%2Flocalhost%3A4000%2Fhtb_writeup%2FHTB-Ignition%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-x.x.137.97%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fhtb_writeup%2FHTB-Ignition%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fvulnwebs_writeup%2FVulnWebs-x.x.137.97%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fhtb_writeup%2FHTB-Ignition%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
       
   <nav class="pagination">
     
-      <a href="/vulnwebs_writeup/VulnWebs-testhtml5.vulnweb.com/" class="pagination--pager" title="[ VulnWebs ] - testhtml5.vulnweb.com
+      <a href="/vulnwebs_writeup/VulnWebs-x.x.137.97/" class="pagination--pager" title="[ VulnWebs ] - x.x.137.97
 ">Previous</a>
     
     
-      <a href="/htb_writeup/HTB-Ignition/" class="pagination--pager" title="[ HTB ] - Iginition
-">Next</a>
+      <a href="#" class="pagination--pager disabled">Next</a>
     
   </nav>
 
@@ -430,7 +429,7 @@ Done.</p>
     
     <h2 class="archive__item-title no_toc" itemprop="headline">
       
-        <a href="/htb_writeup/HTB-Ignition/" rel="permalink">[ HTB ] - Iginition
+        <a href="/vulnwebs_writeup/VulnWebs-x.x.137.97/" rel="permalink">[ VulnWebs ] - x.x.137.97
 </a>
       
     </h2>
@@ -455,14 +454,20 @@ Done.</p>
   </p>
 
 
-    <p class="archive__item-excerpt" itemprop="description">
-관리자 페이지에 접속가능한 웹사이트는 공격자가 Brute Forcing 공격을 통해 ID/PW를 획득할 수 있다 그렇다면 어떻게 관리자 페이지를 찾을 수 있고 브루투포스 공격을 수행할 수 있을 까?
+    <p class="archive__item-excerpt" itemprop="description">RECON
+
+OS: CentOS
+WAS: Apache/2.4.6
+Lang: PHP/7.2.34
+
+File Upload
+업로드 페이지가 존재하며
+http://x.x.137.97/upload.php
 
 
 
-
-1. Service Enumeration
-nmap -sS -sV 10.12...</p>
+확장자 ‘.php’를 가지는 php코드 파일을 업로드 시도
+import reque...</p>
   </article>
 </div>
 

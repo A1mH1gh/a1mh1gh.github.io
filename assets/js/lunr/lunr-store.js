@@ -94,4 +94,10 @@ var store = [{
         "tags": [],
         "url": "/vulnwebs_writeup/VulnWebs-x.x.137.97/",
         "teaser": null
+      },{
+        "title": "[ HTB ] - Iginition",
+        "excerpt":"관리자 페이지에 접속가능한 웹사이트는 공격자가 Brute Forcing 공격을 통해 ID/PW를 획득할 수 있다 그렇다면 어떻게 관리자 페이지를 찾을 수 있고 브루투포스 공격을 수행할 수 있을 까? 1. Service Enumeration nmap -sS -sV 10.129.177.62 -o nmap.txt 2. Initial Access 처음 IP로 접속시에는 302 에러코드와 함께 접속이 되지 않을 것이다, 도메인으로 접속하라는...","categories": ["HTB_Writeup"],
+        "tags": [],
+        "url": "/htb_writeup/HTB-Ignition/",
+        "teaser": null
       }]
