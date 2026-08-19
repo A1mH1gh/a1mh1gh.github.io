@@ -1,1 +1,3 @@
-alert(docuemnt.domain)
+<script>
+  alert(document.domain)
+  </script>
